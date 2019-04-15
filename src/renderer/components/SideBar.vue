@@ -1,12 +1,18 @@
 <template>
   <aside class="sidebar">
-    <header>
+    <header class="sidebar__header">
       <input type="search" class="sidebar__filter" v-model="filter" placeholder="Type to filter keys">
     </header>
     <section class="key-list">
       <div class="databases">
-        <div class="key-list__key" v-for="database in databases" :key="database">
-          <i class="fas fa-database"></i>{{database}}
+        <div class="key-list__key" v-for="(database, index) in databases" :key="database" @click="selectDatabase(index)">
+          <div class="row row--center-vert database__listitem" :class="{'database__listitem--dimmed': index > 0}">
+            <div class="column column"><i class="fas fa-database"></i>{{database}}</div>
+            <div class="column column--wrap">
+
+          <span class="key-list__group__entries">{{0}}</span></div>
+            </div>
+          </div>
         </div>
       </div>
         <key-group :keyGroup="group" v-for="group in groupedKeys.groups" :key="group.key"></key-group>
@@ -23,11 +29,11 @@
         </RecycleScroller>
       </div> -->
     </section>
-    <footer>
+    <!-- <footer>
       <div class="footer__button">
         <i class="fas fa-cog"></i> Settings
       </div>
-    </footer>
+    </footer> -->
   </aside>
 </template>
 
@@ -95,6 +101,9 @@ export default {
     // this.loadData(0);
   },
   methods: {
+    selectDatabase(id) {
+      redis.db = id;
+    },
     // groupKeys(keys) {
     //   keys.sort((a, b) => a.length - b.length);
     //   const groups = {};
@@ -136,10 +145,12 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: #eee;
+    background: #F4F7FA;
+    border-right: .1rem solid #ddd;
   }
   #app.dark .sidebar {
     background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, .1);
   }
 
   .key-list {
@@ -164,10 +175,11 @@ export default {
 
 .key-list__keys {
   padding-left: 1rem;
+  transition: all ease .3s;
 }
 
 .key-list__key:hover {
-  background: rgba(0,0,0, .1);
+  background: rgba(127,127,127, .1);
 }
 
   .footer__button {
@@ -176,12 +188,17 @@ export default {
     cursor: pointer;
   }
 
+  .sidebar__header {
+    padding: 1rem;
+  }
   .sidebar__filter {
     width: 100%;
     border: none;
-    padding: 1.5rem 1rem;
-    background: rgba(0,0,0, .1);
-    color: #eee;
+    padding: 1.2rem;
+    background: #fff;
+    border: .1rem solid #dfdfdf;
+    border-radius: .3rem;
+
   }
 
   .sidebar__filter:active,
@@ -201,6 +218,8 @@ export default {
 i {
   margin-right: .5rem;
 }
-
+.database__listitem--dimmed {
+  opacity: .25;
+}
   .vue-recycle-scroller{position:relative}.vue-recycle-scroller.direction-vertical:not(.page-mode){overflow-y:auto}.vue-recycle-scroller.direction-horizontal:not(.page-mode){overflow-x:auto}.vue-recycle-scroller.direction-horizontal{display:flex}.vue-recycle-scroller__slot{flex:auto 0 0}.vue-recycle-scroller__item-wrapper{flex:1;box-sizing:border-box;overflow:hidden;position:relative}.vue-recycle-scroller.ready .vue-recycle-scroller__item-view{position:absolute;top:0;left:0;will-change:transform}.vue-recycle-scroller.direction-vertical .vue-recycle-scroller__item-wrapper{width:100%}.vue-recycle-scroller.direction-horizontal .vue-recycle-scroller__item-wrapper{height:100%}.vue-recycle-scroller.ready.direction-vertical .vue-recycle-scroller__item-view{width:100%}.vue-recycle-scroller.ready.direction-horizontal .vue-recycle-scroller__item-view{height:100%}.resize-observer[data-v-b329ee4c]{position:absolute;top:0;left:0;z-index:-1;width:100%;height:100%;border:none;background-color:transparent;pointer-events:none;display:block;overflow:hidden;opacity:0}.resize-observer[data-v-b329ee4c] object{display:block;position:absolute;top:0;left:0;height:100%;width:100%;overflow:hidden;pointer-events:none;z-index:-1}
 </style>

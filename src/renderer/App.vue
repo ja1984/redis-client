@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="dark">
+  <div id="app">
     <side-bar></side-bar>
     <main-content></main-content>
   </div>
@@ -59,9 +59,10 @@ html {
 }
 
 body, input {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 }
+
 
 #app {
   height: 100%;

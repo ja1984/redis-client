@@ -74,11 +74,16 @@ export default {
 
 <style>
 .key-list__group__entries {
-  background:rgba(255,255,255, .9);
+  background: #aaa;
+  color: #F4F7FA;
   font-size: 1rem;
-  padding: .2rem .5rem;
+  padding: .2rem .7rem;
   border-radius: 10rem;
-  color: #282d3a;
   font-weight: bold;
 }
+
+#app.dark .key-list__group__entries {
+  color: #282d3a;
+  background:rgba(255,255,255, .9);
+} 
 </style>
