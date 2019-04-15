@@ -85,13 +85,19 @@ export default {
     redis.info().then((res) => {
       console.log(res);
     });
-    for (let i = 0; i < 17; i += 1) {
-      redis.select(i).then((res) => {
-        if (res === 'OK') {
-          this.databases.push(`db${i}`);
-        }
-      });
-    }
+
+    redis.config('get', 'databases').then((res) => {
+      console.log('response from db', res);
+      for (let i = 0; i < res[1]; i += 1) {
+        redis.select(i).then((res) => {
+          if (res === 'OK') {
+            this.databases.push(`db${i}`);
+          }
+        }).catch(console.error);
+      }
+    });
+
+
     // this.loadData(0);
   },
   methods: {
