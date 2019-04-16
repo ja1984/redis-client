@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <side-bar></side-bar>
-    <main-content></main-content>
+    <side-bar @setKey="setSelectedKey"></side-bar>
+    <main-content :keyObject="selectedKey"></main-content>
   </div>
 </template>
 
@@ -15,6 +15,16 @@ export default {
   components: {
     MainContent,
     SideBar,
+  },
+  data() {
+    return {
+      selectedKey: null,
+    };
+  },
+  methods: {
+    setSelectedKey(key) {
+      this.selectedKey = key;
+    },
   },
   mounted() {
     // console.log(redis);
@@ -82,7 +92,14 @@ body, input {
 }
 
 .row.row--center-vert {
-  justify-content: center;
+  align-items: center;
+}
+.row.row--spaced {
+  margin: 0 -.5rem;
+}
+
+.row.row--spaced .column {
+  padding: 0 .5rem;
 }
 
 .column {

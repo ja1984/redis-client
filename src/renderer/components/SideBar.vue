@@ -5,7 +5,8 @@
     </header>
     <section class="key-list">
       <div class="databases">
-        <div class="key-list__key" v-for="(database, index) in databases" :key="database" @click="selectDatabase(index)">
+        <database-list-item v-for="database in databases" :database="database" @loadKey="loadKey" :key="database.id"></database-list-item>
+        <!-- <div class="key-list__key" v-for="(database, index) in databases" :key="database" @click="selectDatabase(index)">
           <div class="row row--center-vert database__listitem" :class="{'database__listitem--dimmed': index > 0}">
             <div class="column column"><i class="fas fa-database"></i>{{database}}</div>
             <div class="column column--wrap">
@@ -13,10 +14,10 @@
           <span class="key-list__group__entries">{{0}}</span></div>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
-        <key-group :keyGroup="group" v-for="group in groupedKeys.groups" :key="group.key"></key-group>
-        <div class="key-list__key" v-for="key in groupedKeys.keys" :key="key"><i class="fas fa-key"></i>{{key}}</div>
+        <key-group :keyGroup="group" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
+        <div class="key-list__key" v-for="key in groupedKeys.keys" @click="test(key)" :key="key"><i class="fas fa-key"></i>{{key}}</div>
         <!-- <div class="key-list__key" v-for="key in groupedKeys.keys" :key="key"><i class="fas fa-key"></i>{{key}}</div> -->
         <!-- <template v-else>
           <div class="key-list__key"><i class="fas fa-key"></i> {{group.name}}</div>
@@ -39,12 +40,14 @@
 
 <script>
 import KeyGroup from '@/components/KeyGroup';
+import DatabaseListItem from '@/components/DatabaseListItem';
 const Redis = require('ioredis');
 const redis = new Redis(6379, '127.0.0.1');
 export default {
   name: 'SideBar',
   components: {
     KeyGroup,
+    DatabaseListItem,
   },
   data() {
     return {
@@ -88,16 +91,20 @@ export default {
     },
   },
   mounted() {
-    redis.info().then((res) => {
-      console.log(res);
-    });
+    // redis.info().then((res) => {
+    //   console.log(res);
+    // });
 
     redis.config('get', 'databases').then((res) => {
       console.log('response from db', res);
       for (let i = 0; i < res[1]; i += 1) {
         redis.select(i).then((res) => {
           if (res === 'OK') {
-            this.databases.push(`db${i}`);
+            this.databases.push({
+              id: i,
+              keys: 0,
+              name: `db${i}`,
+            });
           }
         }).catch(console.error);
       }
@@ -107,8 +114,71 @@ export default {
     // this.loadData(0);
   },
   methods: {
-    selectDatabase(id) {
-      redis.db = id;
+    loadKey(key) {
+      console.log('sidebar', key);
+      redis.select(0).then((res) => {
+        if (res === 'OK') {
+          redis.type(key).then((type) => {
+            console.log(type);
+            switch (type) {
+              case 'hash':
+                this.loadHash(key);
+                break;
+              case 'lists':
+                this.loadLists(key);
+                break;
+              case 'sets':
+                this.loadSets(key);
+                break;
+              case 'zset':
+                this.loadZSet(key);
+                break;
+              default:
+                this.loadString(key);
+                break;
+            }
+          });
+        }
+      });
+    },
+    loadTtl(key) {
+      return new Promise((resolve) => {
+        redis.ttl(key)
+          .then(res => resolve(res));
+      });
+    },
+    loadString(key) {
+      this.loadTtl(key).then(((ttl) => {
+        redis.get(key).then((response) => {
+          console.log(ttl, response);
+          this.$emit('setKey', { ttl, data: response, type: 'string' });
+        });
+      }));
+    },
+    loadHash(key) {
+      redis.get(key).then((response) => {
+        console.log(response);
+      });
+    },
+    loadLists(key) {
+      redis.get(key).then((response) => {
+        console.log(response);
+      });
+    },
+    loadSets(key) {
+      redis.get(key).then((response) => {
+        console.log(response);
+      });
+    },
+    loadZSet(key) {
+      this.loadTtl(key).then(((ttl) => {
+        redis.zcard(key).then((response) => {
+          redis.zrange(key, 0, (response - 1), 'WITHSCORES').then((zrangeResponse) => {
+            console.log(ttl, response, zrangeResponse);
+            this.$emit('setKey', { ttl, data: zrangeResponse, type: 'zset' });
+          });
+        });
+      }));
     },
     // groupKeys(keys) {
     //   keys.sort((a, b) => a.length - b.length);
@@ -132,15 +202,6 @@ export default {
 
     //   this.groups = groups;
     // },
-    loadData(start) {
-      redis.scan(start, 'MATCH', '*', 'COUNT', 1000).then((res) => {
-        // console.log(res, res[0], res[1]);
-        this.keys.push(...res[1]);
-        if (res[0] > 0) {
-          this.loadData(res[0]);
-        }
-      });
-    },
   },
 };
 </script>

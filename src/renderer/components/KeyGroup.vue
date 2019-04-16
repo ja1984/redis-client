@@ -11,8 +11,8 @@
       </div>
     </div>
     <div class="key-list__keys" v-if="open">
-      <key-group :keyGroup="group" v-for="group in groupedKeys.groups" :key="group.key"></key-group>
-      <div class="key-list__key" v-for="key in groupedKeys.keys" :key="key"><i class="fas fa-key"></i>{{key}}</div>
+      <key-group :keyGroup="group" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
+      <div class="key-list__key" @click="loadKey(key)" v-for="key in groupedKeys.keys" :key="key"><i class="fas fa-key"></i>{{key}}</div>
     </div>
   </div>
 </template>
@@ -37,6 +37,12 @@ export default {
     keys: {
       type: Array,
       default: () => [],
+    },
+  },
+  methods: {
+    loadKey(key) {
+      const payload = `${this.keyGroup.name}:${key}`;
+      this.$emit('loadKey', payload);
     },
   },
   computed: {
@@ -74,6 +80,7 @@ export default {
 
 <style>
 .key-list__group__entries {
+  display: block;
   background: #aaa;
   color: #F4F7FA;
   font-size: 1rem;
