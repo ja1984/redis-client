@@ -81,12 +81,15 @@ export default {
 <style>
 .key-list__group__entries {
   display: block;
-  background: #aaa;
-  color: #F4F7FA;
-  font-size: 1rem;
-  padding: .2rem .7rem;
-  border-radius: 10rem;
   font-weight: bold;
+
+  border-radius: .3rem;
+  padding: .5rem 1rem;
+  background: #2196F3;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 1rem;
+
 }
 
 #app.dark .key-list__group__entries {

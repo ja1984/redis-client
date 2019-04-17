@@ -2,17 +2,22 @@
   <main class="content">
     <header class="content__header" v-if="keyObject">
       <div class="row row--center-vert row--spaced">
+        <div class="column column--wrap">
+          <label class="form-label">
+            <span class="form-label__text">&nbsp;</span>
+          <span class="key-type">{{keyObject.type}}</span>
+          </label>
+        </div>
         <div class="column">
           <label class="form-label">
             <span class="form-label__text">Key</span>
-            <input type="text" class="content__header__key">
+            <input type="text" v-model="keyObject.key" readonly class="content__header__key">
           </label></div>
         <div class="column column--wrap">
           <label class="form-label">
             <span class="form-label__text">ttl</span>
             <strong>{{keyObject.ttl}}</strong>
           </label></div>
-        <div class="column column--wrap"><button>Test</button></div>
       </div>
     </header>
     <section class="content__body" v-if="keyObject">{{keyObject.data}}</section>
@@ -26,6 +31,9 @@ export default {
     keyObject: {
       type: Object,
     },
+    server: {
+      type: Object,
+    },
   },
 };
 </script>
@@ -37,7 +45,7 @@ export default {
     flex-direction: column;
   }
   .content__header__key {
-        width: 100%;
+    width: 100%;
     border: none;
     padding: .8rem;
     background: #fff;
@@ -63,5 +71,12 @@ export default {
   display: block;
   }
 
-  
+  .key-type {
+    border-radius: .3rem;
+    padding: .5rem 1rem;
+    background: #2196F3;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 1rem;
+  }
 </style>

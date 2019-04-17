@@ -3,27 +3,25 @@
     >
       <div
         class="row row--center-vert database__listitem" @click="loadKeys"
-        :class="{'database__listitem--dimmed': database.keys === 0 && keys.length === 0}"
       >
         <div class="column column">
           <i class="fas fa-database"></i>
           {{database.name}}
         </div>
         <div class="column column--wrap">
-          <span class="key-list__group__entries">{{keys.length}}</span>
+          <span class="key-list__group__entries" :class="{'key-list__group__entries--dimmed': numberOfKeys === 0}">{{numberOfKeys}}</span>
         </div>
       </div>
-      <div>
+      <div v-show="showKeys">
         <key-group :keyGroup="group" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
         <div class="key-list__key" v-for="key in groupedKeys.keys" @click="loadKey(key)" :key="key"><i class="fas fa-key"></i>{{key}}</div>
+      </div>
       </div>
     </div>
 </template>
 
 <script>
 import KeyGroup from '@/components/KeyGroup';
-const Redis = require('ioredis');
-const redis = new Redis(6379, '127.0.0.1');
 
 export default {
   name: 'DataBaseListItem',
@@ -35,13 +33,23 @@ export default {
       type: Object,
       open: false,
     },
+    redis: {
+      type: Object,
+    },
   },
   data() {
     return {
       keys: [],
+      loading: false,
+      loaded: false,
+      showKeys: false,
     };
   },
   computed: {
+    numberOfKeys() {
+      if (this.keys.length > 0 && !this.loading) return this.keys.length;
+      return this.database.keys;
+    },
     groupedKeys() {
       const keys = this.keys.concat().sort((a, b) => a.length - b.length);
       const groups = {};
@@ -74,7 +82,9 @@ export default {
       this.$emit('loadKey', key);
     },
     loadKeys() {
-      redis.select(this.database.id).then((res) => {
+      this.showKeys = !this.showKeys;
+      if (this.loaded) return;
+      this.redis.select(this.database.id).then((res) => {
         if (res === 'OK') {
           this.loadData(0);
           this.open = true;
@@ -82,11 +92,15 @@ export default {
       });
     },
     loadData(start) {
-      redis.scan(start, 'MATCH', '*', 'COUNT', 1000).then((res) => {
+      this.loading = true;
+      this.redis.scan(start, 'MATCH', '*', 'COUNT', 1000).then((res) => {
         // console.log(res, res[0], res[1]);
         this.keys.push(...res[1]);
         if (res[0] > 0) {
           this.loadData(res[0]);
+        } else {
+          this.loading = false;
+          this.loaded = true;
         }
       });
     },

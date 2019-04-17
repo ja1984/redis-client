@@ -1,27 +1,36 @@
 <template>
   <div id="app">
-    <side-bar @setKey="setSelectedKey"></side-bar>
-    <main-content :keyObject="selectedKey"></main-content>
+    <side-bar :redis="redis" @setKey="setSelectedKey"></side-bar>
+    <main-content :redis="redis" :keyObject="selectedKey"></main-content>
+    <server-select @selectServer="selectServer" :show="selectedServer === null"></server-select>
   </div>
 </template>
 
 <script>
 import SideBar from '@/components/SideBar';
 import MainContent from '@/components/MainContent';
-// const Redis = require('ioredis');
+import ServerSelect from '@/components/ServerSelect';
+const Redis = require('ioredis');
 // const redis = new Redis(6379, '127.0.0.1');
 export default {
   name: 'redis-client',
   components: {
     MainContent,
     SideBar,
+    ServerSelect,
   },
   data() {
     return {
       selectedKey: null,
+      selectedServer: null,
+      redis: null,
     };
   },
   methods: {
+    selectServer(server) {
+      this.redis = new Redis(server.port, server.url);
+      this.selectedServer = server;
+    },
     setSelectedKey(key) {
       this.selectedKey = key;
     },
@@ -109,5 +118,17 @@ body, input {
 .column.column--wrap {
   flex: none;
 }
+
+.modal-enter,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-to,
+.modal-leave {
+  opacity: 1;
+}
+
+
   /* CSS */
 </style>
