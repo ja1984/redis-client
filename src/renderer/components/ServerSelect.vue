@@ -15,7 +15,7 @@
               :class="{'servers__server--selected': server === selectedServer}"
             >
               {{server.name}}
-              <span class="server-url">{{server.url}}:{{server.url}}</span>
+              <span class="server-url">{{server.host}}:{{server.port}}</span>
             </div>
           </div>
         </section>
@@ -28,6 +28,7 @@
 </template>
 
 <script>
+const Redis = require('ioredis');
 export default {
   name: 'ServerSelect',
   props: {
@@ -35,14 +36,22 @@ export default {
       type: Boolean,
       default: false,
     },
+    redis: {
+      type: Object,
+    },
   },
   data() {
     return {
       servers: [{
         id: 0,
         name: 'Localhost',
-        url: '127.0.0.1',
+        host: '127.0.0.1',
         port: 6379,
+      }, {
+        id: 1,
+        name: 'Localhost',
+        host: '127.0.0.1',
+        port: 6380,
       }],
       selectedServer: null,
     };
@@ -50,7 +59,31 @@ export default {
   methods: {
     selectServer(server) {
       if (server === this.selectedServer) {
-        this.$emit('selectServer', server);
+        const redis = new Redis({
+          lazyConnect: true,
+          port: server.port,
+          host: server.host,
+          maxRetriesPerRequest: 1,
+        });
+        redis.on('error', () => {
+          alert('Could not connect');
+          redis.disconnect();
+        });
+
+        redis.ping().then(() => {
+          this.$emit('selectServer', server);
+        }).catch((err) => {
+          console.log(err);
+          redis.disconnect();
+        });
+
+        // .then((res) => {
+        //   console.log(res);
+        // }).catch((err) => {
+        //   console.log(err);
+        // });
+
+        // this.$emit('selectServer', server);
         return;
       }
 

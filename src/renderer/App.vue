@@ -2,7 +2,7 @@
   <div id="app">
     <side-bar :redis="redis" @setKey="setSelectedKey"></side-bar>
     <main-content :redis="redis" :keyObject="selectedKey"></main-content>
-    <server-select @selectServer="selectServer" :show="selectedServer === null"></server-select>
+    <server-select @selectServer="selectServer" :redis="redis" :show="selectedServer === null"></server-select>
   </div>
 </template>
 
@@ -28,7 +28,7 @@ export default {
   },
   methods: {
     selectServer(server) {
-      this.redis = new Redis(server.port, server.url);
+      this.redis = new Redis(server.port, server.host);
       this.selectedServer = server;
     },
     setSelectedKey(key) {

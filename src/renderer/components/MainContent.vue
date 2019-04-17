@@ -5,19 +5,37 @@
         <div class="column column--wrap">
           <label class="form-label">
             <span class="form-label__text">&nbsp;</span>
-          <span class="key-type">{{keyObject.type}}</span>
+            <span class="key-type">{{keyObject.type}}</span>
           </label>
         </div>
         <div class="column">
           <label class="form-label">
             <span class="form-label__text">Key</span>
             <input type="text" v-model="keyObject.key" readonly class="content__header__key">
-          </label></div>
+          </label>
+        </div>
         <div class="column column--wrap">
           <label class="form-label">
             <span class="form-label__text">ttl</span>
             <strong>{{keyObject.ttl}}</strong>
-          </label></div>
+          </label>
+        </div>
+        <div class="column column--wrap">
+          <div class="toolbar">
+            <div class="row">
+              <div class="column column-wrap">
+                <button class="toolbar__button">
+                  <i class="fas fa-fw toolbar__button__icon fa-cog"></i>
+                </button>
+              </div>
+              <div class="column column-wrap">
+                <button class="toolbar__button">
+                  <i class="fas fa-fw toolbar__button__icon fa-ellipsis-v"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
     <section class="content__body" v-if="keyObject">{{keyObject.data}}</section>
@@ -39,44 +57,59 @@ export default {
 </script>
 
 <style>
-  .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .content__header__key {
-    width: 100%;
-    border: none;
-    padding: .8rem;
-    background: #fff;
-    border: .1rem solid #dfdfdf;
-    border-radius: .3rem;
-    font-size: 1.2rem;
-  }
-  .content__header {
-    padding: 1rem;
-    border-bottom: .1rem solid #ddd;
-    background: #f9f9f9;
-  }
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.content__header__key {
+  width: 100%;
+  border: none;
+  padding: 0.8rem;
+  background: #fff;
+  border: 0.1rem solid #dfdfdf;
+  border-radius: 0.3rem;
+  font-size: 1.2rem;
+}
+.content__header {
+  padding: 1rem;
+  border-bottom: 0.1rem solid #ddd;
+  background: #f9f9f9;
+}
 
-  .content__body {
-    padding: 1rem;
-  }
+.content__body {
+  padding: 1rem;
+}
 
-  .form-label__text {
+.form-label__text {
   margin-bottom: 0.4rem;
   text-transform: uppercase;
   font-size: 1rem;
   font-weight: normal;
   display: block;
-  }
+}
 
-  .key-type {
-    border-radius: .3rem;
-    padding: .5rem 1rem;
-    background: #2196F3;
-    color: #fff;
-    text-transform: uppercase;
-    font-size: 1rem;
-  }
+.key-type {
+  border-radius: 0.3rem;
+  padding: 0.5rem 1rem;
+  background: #2196f3;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 1rem;
+}
+
+.toolbar__button {
+  background: transparent;
+  border: none;
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.toolbar__button__icon {
+  font-size: 2.5rem;
+  color: #333;
+}
 </style>
