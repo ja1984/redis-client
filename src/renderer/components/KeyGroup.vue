@@ -12,7 +12,7 @@
     </div>
     <div class="key-list__keys" v-if="open">
       <key-group :keyGroup="group" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
-      <div class="key-list__key" @click="loadKey(key)" v-for="key in groupedKeys.keys" :key="key"><i class="fas fa-key"></i>{{key}}</div>
+      <div class="key-list__key" @click="loadKey(key.fullKey)" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" v-for="key in groupedKeys.keys" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
     </div>
   </div>
 </template>
@@ -34,15 +34,23 @@ export default {
     keyGroup: {
       type: Object,
     },
+    delimiter: {
+      type: String,
+      default: '',
+    },
     keys: {
       type: Array,
       default: () => [],
     },
+    selectedFullKey: {
+      type: String,
+      default: '',
+    },
   },
   methods: {
     loadKey(key) {
-      const payload = `${this.keyGroup.name}:${key}`;
-      this.$emit('loadKey', payload);
+      console.log('KeyGroup loadKey', key.fullKey);
+      this.$emit('loadKey', key);
     },
   },
   computed: {
@@ -53,10 +61,13 @@ export default {
       const singleKeys = [];
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
-        const split = key.split(/:(.+)?/);
+
+        // const split = key.split(/:(.+)?/);
+        const split = key.name.split(/(?::|_)(.+)?/);
+        // const split = key.name.split(`/(?:${':|_'})(.+)?/`);
 
         if (split.length === 1) {
-          singleKeys.push(split[0]);
+          singleKeys.push(Object.freeze({ name: split[0], fullKey: key.fullKey }));
         } else {
           const keyGroup = split[0];
           const keyName = split.length > 1 ? split[1] : key;
@@ -65,13 +76,15 @@ export default {
           if (!existingGroup) {
             groups[keyGroup] = {
               name: keyGroup,
-              keys: [keyName],
+              keys: [Object.freeze({ name: keyName, fullKey: key.fullKey })],
             };
           } else {
-            existingGroup.keys.push(keyName);
+            existingGroup.keys.push(Object.freeze({ name: keyName, fullKey: key.fullKey }));
+            // existingGroup.keys.push(key);
           }
         }
       }
+      console.log(groups);
       return { groups, keys: singleKeys };
     },
   },
@@ -92,7 +105,7 @@ export default {
 
 }
 
-#app.dark .key-list__group__entries {
+#app.app--theme-dark .key-list__group__entries {
   color: #282d3a;
   background:rgba(255,255,255, .9);
 } 

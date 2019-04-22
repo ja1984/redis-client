@@ -8,29 +8,68 @@
         <section class="server-select__modal__body">
           <div class="servers">
             <div
-              class="servers__server"
+              class="servers__server row row--spaced"
               v-for="server in servers"
               :key="server.id"
               @click="selectServer(server)"
               :class="{'servers__server--selected': server === selectedServer}"
             >
-              {{server.name}}
-              <span class="server-url">{{server.host}}:{{server.port}}</span>
+              <div class="column">
+                {{server.name}}
+                <div class="row">
+                  <div class="column">
+                    <span class="server-url">{{server.host}}:{{server.port}}</span>
+                  </div>
+                  <div class="column column--wrap">
+                    <span class="server-url">{{server.lastConnect}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="column column--wrap">
+                <button class="button button--primary servers__server__button" @click.stop="edit(server)">
+                  <i class="fas fa-fw fa-wrench"></i>
+                </button>
+              </div>
             </div>
           </div>
         </section>
         <footer class="server-select__modal__footer">
-          <button :disabled="selectedServer === null" @click="selectServer(selectedServer)">ok</button>
+          <div class="row">
+            <div class="column">
+              <button
+                class="button button--transparent"
+                @click="showServerEditor = true"
+              >New connection</button>
+            </div>
+            <div class="column column--wrap">
+              <i class="fas fa-circle-notch fa-spin" v-if="loading"></i>
+              <button
+                :disabled="selectedServer === null || loading"
+                @click="selectServer(selectedServer)"
+                class="button button--primary"
+              >Connect</button>
+            </div>
+          </div>
         </footer>
+        <server-editor
+          :show="showServerEditor"
+          :server-to-edit="serverToEdit"
+          @cancel="showServerEditor = false"
+          @serverAdded="serverAdded"
+        ></server-editor>
       </div>
     </div>
   </transition>
 </template>
 
 <script>
+import ServerEditor from '@/components/ServerEditor';
 const Redis = require('ioredis');
 export default {
   name: 'ServerSelect',
+  components: {
+    ServerEditor,
+  },
   props: {
     show: {
       type: Boolean,
@@ -40,23 +79,33 @@ export default {
       type: Object,
     },
   },
+  mounted() {
+    this.loadServers();
+  },
   data() {
     return {
-      servers: [{
-        id: 0,
-        name: 'Localhost',
-        host: '127.0.0.1',
-        port: 6379,
-      }, {
-        id: 1,
-        name: 'Localhost',
-        host: '127.0.0.1',
-        port: 6380,
-      }],
+      showServerEditor: false,
+      servers: [],
       selectedServer: null,
+      loading: false,
+      serverToEdit: null,
     };
   },
   methods: {
+    edit(server) {
+      this.serverToEdit = server;
+      this.showServerEditor = true;
+    },
+    serverAdded() {
+      this.loadServers();
+      this.showServerEditor = false;
+    },
+    loadServers() {
+      const servers = JSON.parse(localStorage.getItem('servers'));
+      if (servers) {
+        this.servers = servers;
+      }
+    },
     selectServer(server) {
       if (server === this.selectedServer) {
         const redis = new Redis({
@@ -69,10 +118,14 @@ export default {
           alert('Could not connect');
           redis.disconnect();
         });
-
+        this.loading = true;
         redis.ping().then(() => {
+          this.loading = false;
+          server.lastConnect = new Date();
+          localStorage.setItem('servers', JSON.stringify(this.servers));
           this.$emit('selectServer', server);
         }).catch((err) => {
+          this.loading = false;
           console.log(err);
           redis.disconnect();
         });
@@ -105,7 +158,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all ease .3s;
+  transition: all ease 0.3s;
   opacity: 1;
 }
 
@@ -117,7 +170,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: 90%;
-  max-width: 600px;
+  max-width: 65rem;
 }
 
 .server-select__modal__body {
@@ -132,7 +185,6 @@ export default {
 
 .server-select__modal__footer {
   padding-top: 1.5rem;
-  text-align: center;
 }
 
 .server-select__modal__body {
@@ -160,5 +212,21 @@ export default {
   display: block;
   color: #888;
 }
+
+.servers__server__button {
+  opacity: .10;
+}
+
+
+
+.servers__server:hover .servers__server__button {
+  opacity: .5;
+}
+
+.servers__server:hover .servers__server__button:hover {
+  opacity: 1;
+}
+
+
 
 </style>

@@ -13,8 +13,8 @@
         </div>
       </div>
       <div v-show="showKeys">
-        <key-group :keyGroup="group" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
-        <div class="key-list__key" v-for="key in groupedKeys.keys" @click="loadKey(key)" :key="key"><i class="fas fa-key"></i>{{key}}</div>
+        <key-group :keyGroup="group" :selectedFullKey="selectedFullKey" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
+        <div class="key-list__key" v-for="key in groupedKeys.keys" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" @click="loadKey(key)" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
       </div>
       </div>
     </div>
@@ -36,6 +36,14 @@ export default {
     redis: {
       type: Object,
     },
+    filter: {
+      type: String,
+      default: '',
+    },
+    selectedFullKey: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -46,19 +54,26 @@ export default {
     };
   },
   computed: {
+    filteredKeys() {
+      if (this.filter.length === 0) return this.keys;
+      return this.keys
+        .filter(key => key.toLowerCase().includes(this.filter.toLowerCase()));
+    },
     numberOfKeys() {
-      if (this.keys.length > 0 && !this.loading) return this.keys.length;
+      if (this.filteredKeys.length > 0 && !this.loading) return this.keys.length;
       return this.database.keys;
     },
     groupedKeys() {
-      const keys = this.keys.concat().sort((a, b) => a.length - b.length);
+      const keys = this.filteredKeys.concat().sort();
       const groups = {};
       const singleKeys = [];
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
-        const split = key.split(/:(.+)?/);
+        // const split = key.split(/:(.+)?/);
+        const split = key.split(/(?::|_)(.+)?/);
         if (split.length === 1) {
-          singleKeys.push(split[0]);
+          singleKeys.push(Object.freeze({ name: split[0], fullKey: key }));
+          // singleKeys.push(split[0]);
         } else {
           const keyGroup = split[0];
           const keyName = split.length > 1 ? split[1] : key;
@@ -67,10 +82,10 @@ export default {
           if (!existingGroup) {
             groups[keyGroup] = {
               name: keyGroup,
-              keys: [keyName],
+              keys: [Object.freeze({ name: keyName, fullKey: key })],
             };
           } else {
-            existingGroup.keys.push(keyName);
+            existingGroup.keys.push(Object.freeze({ name: keyName, fullKey: key }));
           }
         }
       }

@@ -1,34 +1,40 @@
 <template>
   <main class="content">
-    <header class="content__header" v-if="keyObject">
+    <header class="content__header">
       <div class="row row--center-vert row--spaced">
-        <div class="column column--wrap">
-          <label class="form-label">
-            <span class="form-label__text">&nbsp;</span>
-            <span class="key-type">{{keyObject.type}}</span>
-          </label>
-        </div>
         <div class="column">
-          <label class="form-label">
-            <span class="form-label__text">Key</span>
-            <input type="text" v-model="keyObject.key" readonly class="content__header__key">
-          </label>
-        </div>
-        <div class="column column--wrap">
-          <label class="form-label">
-            <span class="form-label__text">ttl</span>
-            <strong>{{keyObject.ttl}}</strong>
-          </label>
+          <template v-if="keyObject">
+            <div class="row row--center-vert">
+              <div class="column column--wrap">
+                <label class="form-label">
+                  <span class="form-label__text">&nbsp;</span>
+                  <span class="key-type">{{keyObject.type}}</span>
+                </label>
+              </div>
+              <div class="column">
+                <label class="form-label">
+                  <span class="form-label__text">Key</span>
+                  <input type="text" v-model="keyObject.key" readonly class="content__header__key">
+                </label>
+              </div>
+              <div class="column column--wrap">
+                <label class="form-label">
+                  <span class="form-label__text">ttl</span>
+                  <strong>{{keyObject.ttl}}</strong>
+                </label>
+              </div>
+            </div>
+          </template>
         </div>
         <div class="column column--wrap">
           <div class="toolbar">
             <div class="row">
-              <div class="column column-wrap">
+              <div class="column column--wrap">
                 <button class="toolbar__button">
                   <i class="fas fa-fw toolbar__button__icon fa-cog"></i>
                 </button>
               </div>
-              <div class="column column-wrap">
+              <div class="column column--wrap">
                 <button class="toolbar__button">
                   <i class="fas fa-fw toolbar__button__icon fa-ellipsis-v"></i>
                 </button>

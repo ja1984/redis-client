@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron' // eslint-disable-line
+import { app, BrowserWindow, systemPreferences } from 'electron' // eslint-disable-line
 
 /**
  * Set `__static` path to static files in production
@@ -17,6 +17,9 @@ function createWindow() {
   /**
    * Initial window options
    */
+  console.log(systemPreferences);
+
+  // systemPreferences.setAppLevelAppearance('dark');
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,

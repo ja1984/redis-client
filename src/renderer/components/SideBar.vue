@@ -5,30 +5,8 @@
     </header>
     <section class="key-list">
       <div class="databases">
-        <database-list-item v-for="database in databases" :database="database" :redis="redis" @loadKey="loadKey" :key="database.id"></database-list-item>
-        <!-- <div class="key-list__key" v-for="(database, index) in databases" :key="database" @click="selectDatabase(index)">
-          <div class="row row--center-vert database__listitem" :class="{'database__listitem--dimmed': index > 0}">
-            <div class="column column"><i class="fas fa-database"></i>{{database}}</div>
-            <div class="column column--wrap">
-
-          <span class="key-list__group__entries">{{0}}</span></div>
-            </div>
-          </div>
-        </div> -->
+        <database-list-item v-for="database in databases" :filter="filter" :selectedFullKey="selectedFullKey" :database="database" :redis="redis" @loadKey="loadKey" :key="database.id"></database-list-item>
       </div>
-        <key-group :keyGroup="group" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
-        <div class="key-list__key" v-for="key in groupedKeys.keys" @click="test(key)" :key="key"><i class="fas fa-key"></i>{{key}}</div>
-        <!-- <div class="key-list__key" v-for="key in groupedKeys.keys" :key="key"><i class="fas fa-key"></i>{{key}}</div> -->
-        <!-- <template v-else>
-          <div class="key-list__key"><i class="fas fa-key"></i> {{group.name}}</div>
-        </template> -->
-      <!-- <div class="key-list__list">
-        <RecycleScroller class="scroller" :items="filteredKeys" key-field="key" :itemSize="38">
-          <div slot-scope="{ item }">
-            <div class="key-list__key"><i class="fas fa-key"></i> {{item}}</div>
-          </div>
-        </RecycleScroller>
-      </div> -->
     </section>
     <!-- <footer>
       <div class="footer__button">
@@ -47,6 +25,10 @@ export default {
     redis: {
       type: Object,
     },
+    selectedFullKey: {
+      type: String,
+      default: '',
+    },
   },
   components: {
     KeyGroup,
@@ -61,39 +43,6 @@ export default {
       client: null,
     };
   },
-  computed: {
-    groupedKeys() {
-      const keys = this.filteredKeys.concat().sort((a, b) => a.length - b.length);
-      const groups = {};
-      const singleKeys = [];
-      for (let i = 0; i < keys.length; i += 1) {
-        const key = keys[i];
-        const split = key.split(/:(.+)?/);
-        if (split.length === 1) {
-          singleKeys.push(split[0]);
-        } else {
-          const keyGroup = split[0];
-          const keyName = split.length > 1 ? split[1] : key;
-          const existingGroup = groups[keyGroup];
-
-          if (!existingGroup) {
-            groups[keyGroup] = {
-              name: keyGroup,
-              keys: [keyName],
-            };
-          } else {
-            existingGroup.keys.push(keyName);
-          }
-        }
-      }
-      return { groups, keys: singleKeys };
-    },
-    filteredKeys() {
-      if (this.filter.length === 0) return this.keys;
-      return this.keys
-        .filter(key => key.toLowerCase().includes(this.filter.toLowerCase()));
-    },
-  },
   mounted() {
     // redis.info().then((res) => {
     //   console.log(res);
@@ -103,11 +52,9 @@ export default {
   },
   methods: {
     loadKey(key) {
-      console.log('sidebar', key);
       this.redis.select(0).then((res) => {
         if (res === 'OK') {
           this.redis.type(key).then((type) => {
-            console.log(type);
             switch (type) {
               case 'hash':
                 this.loadHash(key);
@@ -136,6 +83,7 @@ export default {
       });
     },
     loadString(key) {
+      console.log('loadString', key);
       this.loadTtl(key).then(((ttl) => {
         this.redis.get(key).then((response) => {
           console.log(ttl, response);
@@ -245,7 +193,7 @@ export default {
     background: #f6f6f6;
     border-right: .1rem solid #e0e0e0;
   }
-  #app.dark .sidebar {
+  #app.app--theme-dark .sidebar {
     background: rgba(0, 0, 0, 0.1);
     border-color: rgba(255, 255, 255, .1);
   }
@@ -271,12 +219,18 @@ export default {
 }
 
 .key-list__keys {
-  padding-left: 1rem;
   transition: all ease .3s;
 }
 
+
 .key-list__key:hover {
   background: rgba(127,127,127, .1);
+}
+
+
+.key-list__key--selected {
+  background:#2196f3 !important;
+  color: #fff;
 }
 
   .footer__button {
