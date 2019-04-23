@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="key-list__keys" v-if="open">
-      <key-group :keyGroup="group" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
+      <key-group :keyGroup="group" :delimiter="delimiter" v-for="group in groupedKeys.groups" :selectedFullKey="selectedFullKey" @loadKey="loadKey" :key="group.key"></key-group>
       <div class="key-list__key" @click="loadKey(key.fullKey)" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" v-for="key in groupedKeys.keys" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
     </div>
   </div>
@@ -49,7 +49,6 @@ export default {
   },
   methods: {
     loadKey(key) {
-      console.log('KeyGroup loadKey', key.fullKey);
       this.$emit('loadKey', key);
     },
   },
@@ -59,11 +58,12 @@ export default {
       const keys = this.keyGroup.keys.concat();
       const groups = {};
       const singleKeys = [];
+      const regEx = new RegExp(`(?:${this.delimiter})(.+)?`);
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
 
         // const split = key.split(/:(.+)?/);
-        const split = key.name.split(/(?::|_)(.+)?/);
+        const split = key.name.split(regEx);
         // const split = key.name.split(`/(?:${':|_'})(.+)?/`);
 
         if (split.length === 1) {
@@ -84,7 +84,6 @@ export default {
           }
         }
       }
-      console.log(groups);
       return { groups, keys: singleKeys };
     },
   },

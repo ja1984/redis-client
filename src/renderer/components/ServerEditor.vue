@@ -60,10 +60,11 @@
             <div class="form-field">
               <label class="form-label">
                 <span class="form-label__text">Namespace separator</span>
-                <password
-                  v-model="auth"
-                  placeholder="(Optional) redis-server authentication password"
-                ></password>
+                <input
+                type="text"
+                  v-model="delimiter"
+                  placeholder="Namespace separator"
+                >
               </label>
             </div>
           </form>
@@ -111,6 +112,7 @@ export default {
       id: null,
       enviroment: null,
       name: '',
+      delimiter: ':',
       host: '127.0.0.1',
       port: 6379,
       auth: '',
@@ -129,7 +131,7 @@ export default {
           host: this.host,
           port: this.port,
           enviroment: this.enviroment,
-          delimiter: ':',
+          delimiter: this.delimiter,
           lastConnect: null,
         };
         servers.push(newServer);
@@ -140,7 +142,7 @@ export default {
         oldServer.host = this.host;
         oldServer.port = this.port;
         oldServer.enviroment = this.enviroment;
-        oldServer.delimiter = ':';
+        oldServer.delimiter = this.delimiter;
         localStorage.setItem('servers', JSON.stringify(servers));
       }
 

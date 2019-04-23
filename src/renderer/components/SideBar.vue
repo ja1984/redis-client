@@ -5,7 +5,7 @@
     </header>
     <section class="key-list">
       <div class="databases">
-        <database-list-item v-for="database in databases" :filter="filter" :selectedFullKey="selectedFullKey" :database="database" :redis="redis" @loadKey="loadKey" :key="database.id"></database-list-item>
+        <database-list-item v-for="database in databases" :filter="filter" :server="server" :selectedFullKey="selectedFullKey" :database="database" :redis="redis" @loadKey="loadKey" :key="database.id"></database-list-item>
       </div>
     </section>
     <!-- <footer>
@@ -23,6 +23,9 @@ export default {
   name: 'SideBar',
   props: {
     redis: {
+      type: Object,
+    },
+    server: {
       type: Object,
     },
     selectedFullKey: {
@@ -83,10 +86,8 @@ export default {
       });
     },
     loadString(key) {
-      console.log('loadString', key);
       this.loadTtl(key).then(((ttl) => {
         this.redis.get(key).then((response) => {
-          console.log(ttl, response);
           this.$emit('setKey', {
             ttl, data: response, type: 'string', key,
           });
@@ -95,24 +96,23 @@ export default {
     },
     loadHash(key) {
       this.redis.get(key).then((response) => {
-        console.log(response);
+        console.log('HASH', response);
       });
     },
     loadLists(key) {
       this.redis.get(key).then((response) => {
-        console.log(response);
+        console.log('LIST', response);
       });
     },
     loadSets(key) {
       this.redis.get(key).then((response) => {
-        console.log(response);
+        console.log('SET', response);
       });
     },
     loadZSet(key) {
       this.loadTtl(key).then(((ttl) => {
         this.redis.zcard(key).then((response) => {
           this.redis.zrange(key, 0, (response - 1), 'WITHSCORES').then((zrangeResponse) => {
-            console.log(ttl, response, zrangeResponse);
             this.$emit('setKey', {
               ttl, data: zrangeResponse, type: 'zset', key,
             });
@@ -216,6 +216,10 @@ export default {
 
   .key-list__key {
   cursor: pointer;
+}
+
+.key-list__keys .key-list__key {
+  padding-left: 2rem;
 }
 
 .key-list__keys {

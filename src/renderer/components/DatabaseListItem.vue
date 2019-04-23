@@ -6,15 +6,15 @@
       >
         <div class="column column">
           <i class="fas fa-database"></i>
-          {{database.name}}
+          {{database.name}} <i class="fas fa-circle-notch fa-spin" v-if="loading"></i>
         </div>
         <div class="column column--wrap">
           <span class="key-list__group__entries" :class="{'key-list__group__entries--dimmed': numberOfKeys === 0}">{{numberOfKeys}}</span>
         </div>
       </div>
       <div v-show="showKeys">
-        <key-group :keyGroup="group" :selectedFullKey="selectedFullKey" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
-        <div class="key-list__key" v-for="key in groupedKeys.keys" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" @click="loadKey(key)" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
+        <key-group :keyGroup="group" :delimiter="server.delimiter" :selectedFullKey="selectedFullKey" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
+        <div class="key-list__key" v-for="key in groupedKeys.keys" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" @click="loadKey(key.fullKey)" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
       </div>
       </div>
     </div>
@@ -34,6 +34,9 @@ export default {
       open: false,
     },
     redis: {
+      type: Object,
+    },
+    server: {
       type: Object,
     },
     filter: {
@@ -67,10 +70,13 @@ export default {
       const keys = this.filteredKeys.concat().sort();
       const groups = {};
       const singleKeys = [];
+      const regEx = new RegExp(`(?:${this.server.delimiter})(.+)?`);
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
         // const split = key.split(/:(.+)?/);
-        const split = key.split(/(?::|_)(.+)?/);
+        // const split = key.split(/(?::|_)(.+)?/);
+        // console.log(regEx);
+        const split = key.split(regEx);
         if (split.length === 1) {
           singleKeys.push(Object.freeze({ name: split[0], fullKey: key }));
           // singleKeys.push(split[0]);
@@ -99,7 +105,9 @@ export default {
     loadKeys() {
       this.showKeys = !this.showKeys;
       if (this.loaded) return;
+      console.log('dataabaseid', this.database.id);
       this.redis.select(this.database.id).then((res) => {
+        console.log('loadKeys', res);
         if (res === 'OK') {
           this.loadData(0);
           this.open = true;
@@ -108,7 +116,8 @@ export default {
     },
     loadData(start) {
       this.loading = true;
-      this.redis.scan(start, 'MATCH', '*', 'COUNT', 1000).then((res) => {
+      const keys = [];
+      this.redis.scan(start, 'MATCH', '*', 'COUNT', 10000).then((res) => {
         // console.log(res, res[0], res[1]);
         this.keys.push(...res[1]);
         if (res[0] > 0) {
@@ -116,6 +125,7 @@ export default {
         } else {
           this.loading = false;
           this.loaded = true;
+          console.log(keys);
         }
       });
     },

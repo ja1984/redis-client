@@ -1,6 +1,6 @@
 <template>
   <div id="app" :class="{'app--theme-dark': darkMode}">
-    <side-bar :redis="redis" :selectedFullKey="selectedFullKey" @setKey="setSelectedKey"></side-bar>
+    <side-bar :redis="redis" :server="selectedServer" :selectedFullKey="selectedFullKey" @setKey="setSelectedKey"></side-bar>
     <main-content :redis="redis" :keyObject="selectedKey"></main-content>
     <server-select @selectServer="selectServer" :redis="redis" :show="selectedServer === null"></server-select>
   </div>

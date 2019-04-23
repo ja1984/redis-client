@@ -44,7 +44,8 @@
         </div>
       </div>
     </header>
-    <section class="content__body" v-if="keyObject">{{keyObject.data}}</section>
+    <section class="content__body" v-if="keyObject">
+      <pre v-html="dataValue"></pre></section>
   </main>
 </template>
 
@@ -57,6 +58,16 @@ export default {
     },
     server: {
       type: Object,
+    },
+  },
+  computed: {
+    dataValue() {
+      try {
+        const json = JSON.parse(this.keyObject.data);
+        return JSON.stringify(json, null, 2);
+      } catch (error) {
+        return this.keyObject.data;
+      }
     },
   },
 };
