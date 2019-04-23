@@ -183,6 +183,15 @@ export default {
   border-bottom: 0.1rem solid #eee;
 }
 
+#app.app--theme-dark .server-select__modal{
+  color: #eee;
+  background-color: #232834;
+  box-shadow: none;
+}
+#app.app--theme-dark .server-select__modal__header__title{
+
+}
+
 .server-select__modal__footer {
   padding-top: 1.5rem;
 }

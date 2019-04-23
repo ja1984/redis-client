@@ -258,7 +258,12 @@ export default {
     background: #fff;
     border: .1rem solid #dfdfdf;
     border-radius: .3rem;
+  }
 
+  #app.app--theme-dark .sidebar__filter {
+    background: rgba(255,255,255,.1);
+    border: none;
+    color: #fff;
   }
 
   .sidebar__filter:active,

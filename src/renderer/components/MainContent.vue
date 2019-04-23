@@ -94,6 +94,16 @@ export default {
   background: #f9f9f9;
 }
 
+#app.app--theme-dark .content__header {
+  background: rgba(255,255,255, .2);
+  border-color: rgba(255,255,255, .1);
+}
+
+#app.app--theme-dark .content__header__key {
+  background: rgba(255,255,255, .1);
+  color: #fff;
+}
+
 .content__body {
   padding: 1rem;
 }

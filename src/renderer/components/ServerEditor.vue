@@ -238,6 +238,16 @@ export default {
   border-bottom: 0.1rem solid #eee;
 }
 
+#app.app--theme-dark .server-editor__modal{
+  color: #eee;
+  background-color: #232834;
+  box-shadow: none;
+}
+
+#app.app--theme-dark .server-editor__modal__header__title{
+
+}
+
 .server-editor__modal__body {
   margin: 1rem 0;
 }
