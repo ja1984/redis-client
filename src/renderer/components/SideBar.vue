@@ -157,27 +157,32 @@ export default {
       });
       return dbstats;
     },
-  },
-  watch: {
-    redis() {
+    setupDatabases(numberOfDatabases) {
       let serverInfo = {};
       this.redis.info('keyspace').then((res) => {
         serverInfo = this.getServerInfo(res);
       });
-
+      for (let i = 0; i < numberOfDatabases; i += 1) {
+        this.redis.select(i).then((res) => { // eslint-disable-line no-loop-func
+          if (res === 'OK') {
+            const databaseInfo = serverInfo[i];
+            this.databases.push({
+              id: i,
+              keys: databaseInfo ? databaseInfo.keys : 0,
+              name: `db${i}`,
+            });
+          }
+        }).catch(err => console.error(err));
+      }
+    },
+  },
+  watch: {
+    redis() {
       this.redis.config('get', 'databases').then((res) => {
-        for (let i = 0; i < res[1]; i += 1) {
-          this.redis.select(i).then((res) => { // eslint-disable-line no-loop-func
-            if (res === 'OK') {
-              const databaseInfo = serverInfo[i];
-              this.databases.push({
-                id: i,
-                keys: databaseInfo ? databaseInfo.keys : 0,
-                name: `db${i}`,
-              });
-            }
-          }).catch(console.error);
-        }
+        this.setupDatabases(res[1]);
+      }).catch((err) => {
+        console.info('Couldnt use config object so we use static or from settings', err);
+        this.setupDatabases(16); // TODO: Get from settings
       });
     },
   },
