@@ -223,12 +223,13 @@ export default {
   cursor: pointer;
 }
 
-.key-list__keys .key-list__key {
+/* .key-list__keys .key-list__key {
   padding-left: 2rem;
-}
+} */
 
 .key-list__keys {
   transition: all ease .3s;
+  padding-left: 1rem;
 }
 
 

@@ -12,12 +12,17 @@
     </div>
     <div class="key-list__keys" v-if="open">
       <key-group :keyGroup="group" :delimiter="delimiter" v-for="group in groupedKeys.groups" :selectedFullKey="selectedFullKey" @loadKey="loadKey" :key="group.key"></key-group>
-      <div class="key-list__key" @click="loadKey(key.fullKey)" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" v-for="key in groupedKeys.keys" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
+      <virtual-list :size="40" :remain="10">
+            <!-- <item v-for="item of items" :key="item.id" /> -->
+            <div class="key-list__key" @click="loadKey(key.fullKey)" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" v-for="key in groupedKeys.keys" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
+        </virtual-list>
+      
     </div>
   </div>
 </template>
 
 <script>
+import VirtualList from 'vue-virtual-scroll-list';
 import KeyGroup from '@/components/KeyGroup';
 
 export default {
@@ -29,6 +34,7 @@ export default {
   },
   components: {
     KeyGroup,
+    VirtualList,
   },
   props: {
     keyGroup: {
