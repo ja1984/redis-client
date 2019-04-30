@@ -1,18 +1,35 @@
 <template>
-  <div class="password-field-row">
-    <input type="text" :value="value" @input="$emit('input', $event.target.value)">
+  <div class="namespace-separator-editor">
+    <input type="text" :value="value" :placeholder="placeholder" @input="$emit('input', $event.target.value)">
+    <div class="namespace-separator-editor__preview" v-html="testKey">
+    </div>
   </div>
 </template>
 
 <script>
+import KeyGroup from '@/components/KeyGroup';
+
 export default {
   name: 'NamespaceSeparatorEditor',
+  components: {
+    KeyGroup,
+  },
   props: {
     value: String,
+    placeholder: {
+      Type: String,
+      default: '',
+    },
   },
   computed: {
     testKey() {
-      return 'key';
+      const delimiters = this.value.split('|');
+      let key = '';
+      delimiters.forEach((del) => {
+        key += `<strong>key${del}</strong>`;
+      });
+      key += 'key';
+      return key;
     },
   },
 };

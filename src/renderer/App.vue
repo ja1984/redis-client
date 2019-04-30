@@ -52,6 +52,7 @@ export default {
 
     systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => {
       this.darkMode = systemPreferences.isDarkMode();
+      systemPreferences.setAppLevelAppearance(systemPreferences.isDarkMode() ? 'dark' : 'light');
     });
 
     // Add testdata for redis

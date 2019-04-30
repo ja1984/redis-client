@@ -1,4 +1,5 @@
 import { app, BrowserWindow, systemPreferences } from 'electron' // eslint-disable-line
+const path = require('path');
 
 /**
  * Set `__static` path to static files in production
@@ -17,13 +18,13 @@ function createWindow() {
   /**
    * Initial window options
    */
-  console.log(systemPreferences);
 
-  // systemPreferences.setAppLevelAppearance('dark');
+  systemPreferences.setAppLevelAppearance(systemPreferences.isDarkMode() ? 'dark' : 'light');
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,
     width: 1000,
+    icon: path.join(__static, '/icons/128x128.png'),
   });
 
   mainWindow.loadURL(winURL);

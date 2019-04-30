@@ -15,6 +15,9 @@
       <div v-show="showKeys">
         <key-group :keyGroup="group" :delimiter="server.delimiter" :selectedFullKey="selectedFullKey" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
         <div class="key-list__key" v-for="key in groupedKeys.keys" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" @click="loadKey(key.fullKey)" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
+        <strong class="empty-result-warning" v-if="this.filteredKeys.length === 0 && this.keys.length > 0">
+          <i class="fas fa-exclamation-triangle"></i> No keys found
+        </strong>
       </div>
       </div>
     </div>
@@ -22,6 +25,8 @@
 
 <script>
 import KeyGroup from '@/components/KeyGroup';
+
+const Redis = require('ioredis');
 
 export default {
   name: 'DataBaseListItem',
@@ -33,9 +38,9 @@ export default {
       type: Object,
       open: false,
     },
-    redis: {
-      type: Object,
-    },
+    // redis: {
+    //   type: Object,
+    // },
     server: {
       type: Object,
     },
@@ -54,6 +59,7 @@ export default {
       loading: false,
       loaded: false,
       showKeys: false,
+      redis: null,
     };
   },
   computed: {
@@ -100,14 +106,18 @@ export default {
   },
   methods: {
     loadKey(key) {
-      this.$emit('loadKey', key);
+      this.$emit('loadKey', { key, redis: this.redis });
     },
     loadKeys() {
+      if (this.redis === null) {
+        console.log('load', this.database.id);
+        this.redis = new Redis(this.server.port, this.server.host, {
+          db: this.database.id,
+        });
+      }
       this.showKeys = !this.showKeys;
       if (this.loaded) return;
-      console.log('dataabaseid', this.database.id);
       this.redis.select(this.database.id).then((res) => {
-        console.log('loadKeys', res);
         if (res === 'OK') {
           this.loadData(0);
           this.open = true;
@@ -143,5 +153,11 @@ export default {
 
 .database__listitem:hover {
   background: rgba(127,127,127, .1);
+}
+
+.empty-result-warning {
+  text-align: center;
+  padding: .5rem 0;
+  display: block;
 }
 </style>

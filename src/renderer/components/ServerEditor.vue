@@ -60,11 +60,7 @@
             <div class="form-field">
               <label class="form-label">
                 <span class="form-label__text">Namespace separator</span>
-                <input
-                type="text"
-                  v-model="delimiter"
-                  placeholder="Namespace separator"
-                >
+                <namespace-separator-editor v-model="delimiter" placeholder="Namespace separator"></namespace-separator-editor>
               </label>
             </div>
           </form>
@@ -89,6 +85,7 @@
 
 <script>
 import Password from '@/components/Password';
+import NamespaceSeparatorEditor from '@/components/NamespaceSeparatorEditor';
 const Redis = require('ioredis');
 const { dialog } = require('electron').remote;
 
@@ -96,6 +93,7 @@ export default {
   name: 'ServerEditor',
   components: {
     Password,
+    NamespaceSeparatorEditor,
   },
   props: {
     show: {

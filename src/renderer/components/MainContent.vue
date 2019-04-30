@@ -45,19 +45,41 @@
       </div>
     </header>
     <section class="content__body" v-if="keyObject">
-      <pre v-html="dataValue"></pre></section>
+      <pre v-if="keyObject.type === 'string'" v-html="dataValue"></pre>
+      <z-set-viewer v-if="keyObject.type === 'zset'" :data="keyObject.data"></z-set-viewer>
+    </section>
+    <footer class="content__footer" v-if="keyObject">
+      {{ size }}
+    </footer>
   </main>
 </template>
 
 <script>
+import ZSetViewer from '@/components/ZSetViewer';
 export default {
   name: 'MainContent',
+  components: {
+    ZSetViewer,
+  },
   props: {
     keyObject: {
       type: Object,
     },
     server: {
       type: Object,
+    },
+  },
+  methods: {
+    formatBytes(bytes, decimals = 2) {
+      if (bytes === 0) return '0 Bytes';
+
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`; //eslint-disable-line
     },
   },
   computed: {
@@ -68,6 +90,9 @@ export default {
       } catch (error) {
         return this.keyObject.data;
       }
+    },
+    size() {
+      return this.formatBytes(new Blob([this.keyObject.data]).size);
     },
   },
 };
@@ -106,6 +131,19 @@ export default {
 
 .content__body {
   padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.content__footer {
+  border-top: 0.1rem solid #ddd;
+  background: #f9f9f9;
+}
+
+pre {
+  margin: 0;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .form-label__text {

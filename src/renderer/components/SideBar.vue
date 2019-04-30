@@ -1,18 +1,32 @@
 <template>
   <aside class="sidebar">
     <header class="sidebar__header">
-      <input type="search" class="sidebar__filter" v-model="filter" placeholder="Type to filter keys">
+      <input
+        type="search"
+        class="sidebar__filter"
+        v-model="filter"
+        placeholder="Type to filter keys"
+      >
     </header>
     <section class="key-list">
       <div class="databases">
-        <database-list-item v-for="database in databases" :filter="filter" :server="server" :selectedFullKey="selectedFullKey" :database="database" :redis="redis" @loadKey="loadKey" :key="database.id"></database-list-item>
+        <database-list-item
+          v-for="database in databases"
+          :filter="filter"
+          :server="server"
+          :selectedFullKey="selectedFullKey"
+          :database="database"
+          :redis="redis"
+          @loadKey="loadKey"
+          :key="database.id"
+        ></database-list-item>
       </div>
     </section>
     <!-- <footer>
       <div class="footer__button">
         <i class="fas fa-cog"></i> Settings
       </div>
-    </footer> -->
+    </footer>-->
   </aside>
 </template>
 
@@ -54,67 +68,65 @@ export default {
     // this.loadData(0);
   },
   methods: {
-    loadKey(key) {
-      this.redis.select(0).then((res) => {
-        if (res === 'OK') {
-          this.redis.type(key).then((type) => {
-            switch (type) {
-              case 'hash':
-                this.loadHash(key);
-                break;
-              case 'lists':
-                this.loadLists(key);
-                break;
-              case 'sets':
-                this.loadSets(key);
-                break;
-              case 'zset':
-                this.loadZSet(key);
-                break;
-              default:
-                this.loadString(key);
-                break;
-            }
-          });
+    loadKey(payload) {
+      console.log(payload);
+      payload.redis.type(payload.key).then((type) => {
+        console.log('loadKey', type);
+        switch (type) {
+          case 'hash':
+            this.loadHash(payload);
+            break;
+          case 'lists':
+            this.loadLists(payload);
+            break;
+          case 'sets':
+            this.loadSets(payload);
+            break;
+          case 'zset':
+            this.loadZSet(payload);
+            break;
+          default:
+            this.loadString(payload);
+            break;
         }
       });
     },
-    loadTtl(key) {
+    loadTtl(payload) {
       return new Promise((resolve) => {
-        this.redis.ttl(key)
+        payload.redis.ttl(payload.key)
           .then(res => resolve(res));
       });
     },
-    loadString(key) {
-      this.loadTtl(key).then(((ttl) => {
-        this.redis.get(key).then((response) => {
+    loadString(payload) {
+      this.loadTtl(payload).then(((ttl) => {
+        payload.redis.get(payload.key).then((response) => {
           this.$emit('setKey', {
-            ttl, data: response, type: 'string', key,
+            ttl, data: response, type: 'string', key: payload.key,
           });
         });
       }));
     },
-    loadHash(key) {
-      this.redis.get(key).then((response) => {
+    loadHash(payload) {
+      payload.redis.get(payload.key).then((response) => {
         console.log('HASH', response);
       });
     },
-    loadLists(key) {
-      this.redis.get(key).then((response) => {
+    loadLists(payload) {
+      payload.redis.get(payload.key).then((response) => {
         console.log('LIST', response);
       });
     },
-    loadSets(key) {
-      this.redis.get(key).then((response) => {
+    loadSets(payload) {
+      payload.redis.get(payload.key).then((response) => {
         console.log('SET', response);
       });
     },
-    loadZSet(key) {
-      this.loadTtl(key).then(((ttl) => {
-        this.redis.zcard(key).then((response) => {
-          this.redis.zrange(key, 0, (response - 1), 'WITHSCORES').then((zrangeResponse) => {
+    loadZSet(payload) {
+      this.loadTtl(payload).then(((ttl) => {
+        payload.redis.zcard(payload.key).then((response) => {
+          payload.redis.zrange(payload.key, 0, (response - 1), 'WITHSCORES').then((zrangeResponse) => {
             this.$emit('setKey', {
-              ttl, data: zrangeResponse, type: 'zset', key,
+              ttl, data: zrangeResponse, type: 'zset', key: payload.key,
             });
           });
         });
@@ -190,36 +202,35 @@ export default {
 </script>
 
 <style>
-  .sidebar {
-    width: 30rem;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: #f6f6f6;
-    border-right: .1rem solid #e0e0e0;
-  }
-  #app.app--theme-dark .sidebar {
-    background: rgba(0, 0, 0, 0.1);
-    border-color: rgba(255, 255, 255, .1);
-  }
+.sidebar {
+  width: 30rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f6f6f6;
+  border-right: 0.1rem solid #e0e0e0;
+}
+#app.app--theme-dark .sidebar {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+}
 
-  .key-list {
-    flex: 1;
-    overflow: hidden;
-    overflow-y: scroll;
-  }
+.key-list {
+  flex: 1;
+  overflow: hidden;
+  overflow-y: scroll;
+}
 
-  .key-list__list {
-    height: 100%;
-  }
+.key-list__list {
+  height: 100%;
+}
 
+.key-list__key {
+  padding: 1rem;
+  font-size: 1.4rem;
+}
 
-  .key-list__key {
-    padding: 1rem;
-    font-size: 1.4rem;
-  }
-
-  .key-list__key {
+.key-list__key {
   cursor: pointer;
 }
 
@@ -228,68 +239,131 @@ export default {
 } */
 
 .key-list__keys {
-  transition: all ease .3s;
+  transition: all ease 0.3s;
   padding-left: 1rem;
 }
 
-
 .key-list__key:hover {
-  background: rgba(127,127,127, .1);
+  background: rgba(127, 127, 127, 0.1);
 }
 
-
 .key-list__key--selected {
-  background:#2196f3 !important;
+  background: #2196f3 !important;
   color: #fff;
 }
 
-  .footer__button {
-    padding: 1.5rem;
-    background: rgba(0, 0, 0, .1);
-    cursor: pointer;
-  }
+.footer__button {
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
 
-  .sidebar__header {
-    padding: 1rem;
-  }
-  .sidebar__filter {
-    width: 100%;
-    border: none;
-    padding: 1.2rem;
-    background: #fff;
-    border: .1rem solid #dfdfdf;
-    border-radius: .3rem;
-  }
+.sidebar__header {
+  padding: 1rem;
+}
+.sidebar__filter {
+  width: 100%;
+  border: none;
+  padding: 1.2rem;
+  background: #fff;
+  border: 0.1rem solid #dfdfdf;
+  border-radius: 0.3rem;
+}
 
-  #app.app--theme-dark .sidebar__filter {
-    background: rgba(255,255,255,.1);
-    border: none;
-    color: #fff;
-  }
+#app.app--theme-dark .sidebar__filter {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+}
 
-  .sidebar__filter:active,
-  .sidebar__filter:focus {
-    outline: none;
-  }
+.sidebar__filter:active,
+.sidebar__filter:focus {
+  outline: none;
+}
 
-  .scroller {
-    height: 100%;
-  }
+.scroller {
+  height: 100%;
+}
 
-  /* .vue-recycle-scroller  {
+/* .vue-recycle-scroller  {
     height: 100%;
     overflow-y: scroll;
   } */
 
 i {
-  margin-right: .5rem;
+  margin-right: 0.5rem;
 }
 .database__listitem--dimmed {
-  opacity: .25;
+  opacity: 0.25;
 }
 
 .key-list__group__entries--dimmed {
   background-color: #ccc;
 }
-  .vue-recycle-scroller{position:relative}.vue-recycle-scroller.direction-vertical:not(.page-mode){overflow-y:auto}.vue-recycle-scroller.direction-horizontal:not(.page-mode){overflow-x:auto}.vue-recycle-scroller.direction-horizontal{display:flex}.vue-recycle-scroller__slot{flex:auto 0 0}.vue-recycle-scroller__item-wrapper{flex:1;box-sizing:border-box;overflow:hidden;position:relative}.vue-recycle-scroller.ready .vue-recycle-scroller__item-view{position:absolute;top:0;left:0;will-change:transform}.vue-recycle-scroller.direction-vertical .vue-recycle-scroller__item-wrapper{width:100%}.vue-recycle-scroller.direction-horizontal .vue-recycle-scroller__item-wrapper{height:100%}.vue-recycle-scroller.ready.direction-vertical .vue-recycle-scroller__item-view{width:100%}.vue-recycle-scroller.ready.direction-horizontal .vue-recycle-scroller__item-view{height:100%}.resize-observer[data-v-b329ee4c]{position:absolute;top:0;left:0;z-index:-1;width:100%;height:100%;border:none;background-color:transparent;pointer-events:none;display:block;overflow:hidden;opacity:0}.resize-observer[data-v-b329ee4c] object{display:block;position:absolute;top:0;left:0;height:100%;width:100%;overflow:hidden;pointer-events:none;z-index:-1}
+.vue-recycle-scroller {
+  position: relative;
+}
+.vue-recycle-scroller.direction-vertical:not(.page-mode) {
+  overflow-y: auto;
+}
+.vue-recycle-scroller.direction-horizontal:not(.page-mode) {
+  overflow-x: auto;
+}
+.vue-recycle-scroller.direction-horizontal {
+  display: flex;
+}
+.vue-recycle-scroller__slot {
+  flex: auto 0 0;
+}
+.vue-recycle-scroller__item-wrapper {
+  flex: 1;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+.vue-recycle-scroller.ready .vue-recycle-scroller__item-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+.vue-recycle-scroller.direction-vertical .vue-recycle-scroller__item-wrapper {
+  width: 100%;
+}
+.vue-recycle-scroller.direction-horizontal .vue-recycle-scroller__item-wrapper {
+  height: 100%;
+}
+.vue-recycle-scroller.ready.direction-vertical
+  .vue-recycle-scroller__item-view {
+  width: 100%;
+}
+.vue-recycle-scroller.ready.direction-horizontal
+  .vue-recycle-scroller__item-view {
+  height: 100%;
+}
+.resize-observer[data-v-b329ee4c] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  pointer-events: none;
+  display: block;
+  overflow: hidden;
+  opacity: 0;
+}
+.resize-observer[data-v-b329ee4c] object {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
 </style>
