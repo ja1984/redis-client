@@ -47,6 +47,7 @@
     <section class="content__body" v-if="keyObject">
       <pre v-if="keyObject.type === 'string'" v-html="dataValue"></pre>
       <z-set-viewer v-if="keyObject.type === 'zset'" :data="keyObject.data"></z-set-viewer>
+      <set-viewer v-if="keyObject.type === 'set'" :data="keyObject.data"></set-viewer>
     </section>
     <footer class="content__footer" v-if="keyObject">
       {{ size }}
@@ -56,10 +57,12 @@
 
 <script>
 import ZSetViewer from '@/components/ZSetViewer';
+import SetViewer from '@/components/SetViewer';
 export default {
   name: 'MainContent',
   components: {
     ZSetViewer,
+    SetViewer,
   },
   props: {
     keyObject: {

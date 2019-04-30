@@ -79,7 +79,7 @@ export default {
           case 'lists':
             this.loadLists(payload);
             break;
-          case 'sets':
+          case 'set':
             this.loadSets(payload);
             break;
           case 'zset':
@@ -117,9 +117,22 @@ export default {
       });
     },
     loadSets(payload) {
-      payload.redis.get(payload.key).then((response) => {
-        console.log('SET', response);
-      });
+      //       2019-04-30 18:06:22 : Connection: Localhost > [runCommand] ttl newset
+      // 2019-04-30 18:06:22 : Connection: Localhost > Response received :
+      // 2019-04-30 18:06:22 : Connection: Localhost > [runCommand] SCARD newset
+      // 2019-04-30 18:06:22 : Connection: Localhost > Response received :
+      // 2019-04-30 18:06:22 : Connection: Localhost > [runCommand] SSCAN newset 0 COUNT 10000
+      // 2019-04-30 18:06:22 : Connection: Localhost > Response received : Array
+      this.loadTtl(payload).then(((ttl) => {
+        payload.redis.scard(payload.key).then((response) => {
+          console.log(response);
+          payload.redis.sscan(payload.key, 0, 'COUNT', 10000).then((sscanResponse) => {
+            this.$emit('setKey', {
+              ttl, data: sscanResponse, type: 'set', key: payload.key,
+            });
+          });
+        });
+      }));
     },
     loadZSet(payload) {
       this.loadTtl(payload).then(((ttl) => {
@@ -228,6 +241,7 @@ export default {
 .key-list__key {
   padding: 1rem;
   font-size: 1.4rem;
+  padding-left: 2rem;
 }
 
 .key-list__key {
