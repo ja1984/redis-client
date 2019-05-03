@@ -39,10 +39,10 @@ export default {
       const page = this.data[this.page + 1];
 
       if (Array.isArray(page)) {
-        let row = 0;
+        let row = 1;
         for (let i = 0; i < page.length; i += 2) {
           rows.push({
-            id: (row + 1),
+            id: row,
             key: page[i],
             value: page[i + 1],
           });

@@ -31,12 +31,14 @@ export default {
   computed: {
     rows() {
       const rows = [];
+      let row = 1;
       for (let i = 0; i < this.data.length; i += 2) {
         rows.push({
-          id: i === 0 ? 0 : (i - 1),
+          id: row,
           value: this.data[i],
           score: this.data[i + 1],
         });
+        row += 1;
       }
       return rows;
     },
