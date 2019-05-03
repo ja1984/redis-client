@@ -39,6 +39,17 @@
                   <i class="fas fa-fw toolbar__button__icon fa-ellipsis-v"></i>
                 </button>
               </div>
+              <div class="column column--wrap">
+                <button class="toolbar__button">
+                  <span class="fa-stack fa-2x">
+                    <i class="fas fa-fw toolbar__button__icon fa-database fa-stack-2x"></i>
+                    
+                    <i class="far fa-times-circle fa-stack-1x"></i>
+                  </span>
+                  
+                  
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -49,9 +60,7 @@
       <z-set-viewer v-if="keyObject.type === 'zset'" :data="keyObject.data"></z-set-viewer>
       <set-viewer v-if="keyObject.type === 'set'" :data="keyObject.data"></set-viewer>
     </section>
-    <footer class="content__footer" v-if="keyObject">
-      {{ size }}
-    </footer>
+    <footer class="content__footer" v-if="keyObject">{{ size }}</footer>
   </main>
 </template>
 
@@ -82,15 +91,24 @@ export default {
 
       const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`; //eslint-disable-line
+      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`; //eslint-disable-line
     },
   },
   computed: {
+    isJson() {
+      try {
+        const json = JSON.parse(this.keyObject.data); //eslint-disable-line
+        return true;
+      } catch (error) {
+        return false;
+      }
+    },
     dataValue() {
       try {
         const json = JSON.parse(this.keyObject.data);
         return JSON.stringify(json, null, 2);
       } catch (error) {
+        console.log(error);
         return this.keyObject.data;
       }
     },
@@ -123,12 +141,12 @@ export default {
 }
 
 #app.app--theme-dark .content__header {
-  background: rgba(255,255,255, .2);
-  border-color: rgba(255,255,255, .1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 #app.app--theme-dark .content__header__key {
-  background: rgba(255,255,255, .1);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
