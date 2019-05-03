@@ -1,32 +1,58 @@
 <template>
-    <div
-    >
-      <div
-        class="row row--center-vert database__listitem" @click="loadKeys"
-      >
-        <div class="column column">
-          <i class="fas fa-database"></i>
-          {{database.name}} <i class="fas fa-circle-notch fa-spin" v-if="loading"></i>
-        </div>
-        <div class="column column--wrap">
-          <span class="key-list__group__entries" :class="{'key-list__group__entries--dimmed': numberOfKeys === 0}">{{numberOfKeys}}</span>
-        </div>
+  <div>
+    <div class="row row--center-vert database__listitem" @click="loadKeys">
+      <div class="column column">
+        <i class="fas fa-database"></i>
+        {{database.name}}
+        <i class="fas fa-circle-notch fa-spin" v-if="loading"></i>
       </div>
-      <div v-show="showKeys">
-        <key-group :keyGroup="group" :delimiter="server.delimiter" :selectedFullKey="selectedFullKey" v-for="group in groupedKeys.groups" @loadKey="loadKey" :key="group.key"></key-group>
-        <div class="key-list__key" v-for="key in groupedKeys.keys" :class="{'key-list__key--selected': key.fullKey === selectedFullKey}" @click="loadKey(key.fullKey)" :key="key.fullKey"><i class="fas fa-key"></i>{{key.name}}</div>
-        <strong class="empty-result-warning" v-if="this.filteredKeys.length === 0 && this.keys.length > 0">
-          <i class="fas fa-exclamation-triangle"></i> No keys found
-        </strong>
-      </div>
+      <div class="column column--wrap">
+        <span
+          class="key-list__group__entries"
+          :class="{'key-list__group__entries--dimmed': numberOfKeys === 0}"
+        >{{numberOfKeys}}</span>
       </div>
     </div>
+    <div v-show="showKeys">
+      <key-group
+        :keyGroup="group"
+        :delimiter="server.delimiter"
+        :selectedFullKey="selectedFullKey"
+        v-for="group in groupedKeys.groups"
+        @loadKey="loadKey"
+        @deleteKey="deleteKey"
+        :key="group.key"
+      ></key-group>
+      <div
+        class="key-list__key"
+        v-for="key in groupedKeys.keys"
+        :class="{'key-list__key--selected': key.fullKey === selectedFullKey}"
+        @click="loadKey(key.fullKey)"
+        :key="key.fullKey"
+      >
+        <span>
+          <i class="fas fa-key"></i>
+          {{key.name}}
+        </span>
+        <button @click.stop="deleteKey({key: key.fullKey, redis})">Del</button>
+        <!-- eslint-disable-line -->
+      </div>
+      <strong
+        class="empty-result-warning"
+        v-if="this.filteredKeys.length === 0 && this.keys.length > 0"
+      >
+        <i class="fas fa-exclamation-triangle"></i> No keys found
+      </strong>
+    </div>
+  </div>
 </template>
 
 <script>
 import KeyGroup from '@/components/KeyGroup';
 
 const Redis = require('ioredis');
+const { dialog } = require('electron').remote;
+
 
 export default {
   name: 'DataBaseListItem',
@@ -105,6 +131,27 @@ export default {
     },
   },
   methods: {
+    deleteKey(key) {
+      const options = {
+        type: 'info',
+        buttons: ['Cancel', 'OK'],
+        defaultId: 2,
+        title: 'Confirm',
+        message: 'Do you want to do this?',
+        detail: `Are you sure you want to delete ${key}?`,
+      };
+      dialog.showMessageBox(null, options, (call) => {
+        if (call === 1) {
+          const keyIndex = this.keys.findIndex(x => x === key);
+          if (keyIndex === -1) return;
+          this.redis.del(key).then((res) => {
+            if (res === 1) {
+              this.keys.splice(keyIndex, 1);
+            }
+          });
+        }
+      });
+    },
     loadKey(key) {
       this.$emit('loadKey', { key, redis: this.redis });
     },
@@ -115,27 +162,28 @@ export default {
           db: this.database.id,
         });
       }
-      this.showKeys = !this.showKeys;
+
+      if (this.loaded) {
+        this.showKeys = !this.showKeys;
+      }
       if (this.loaded) return;
       this.redis.select(this.database.id).then((res) => {
         if (res === 'OK') {
           this.loadData(0);
-          this.open = true;
         }
       });
     },
     loadData(start) {
       this.loading = true;
-      const keys = [];
       this.redis.scan(start, 'MATCH', '*', 'COUNT', 10000).then((res) => {
         // console.log(res, res[0], res[1]);
         this.keys.push(...res[1]);
         if (res[0] > 0) {
           this.loadData(res[0]);
         } else {
+          this.showKeys = true;
           this.loading = false;
           this.loaded = true;
-          console.log(keys);
         }
       });
     },
@@ -144,20 +192,19 @@ export default {
 </script>
 
 <style>
-
 .database__listitem {
   padding: 1rem;
   cursor: pointer;
-  transition: all ease .3s;
+  transition: all ease 0.3s;
 }
 
 .database__listitem:hover {
-  background: rgba(127,127,127, .1);
+  background: rgba(127, 127, 127, 0.1);
 }
 
 .empty-result-warning {
   text-align: center;
-  padding: .5rem 0;
+  padding: 0.5rem 0;
   display: block;
 }
 </style>

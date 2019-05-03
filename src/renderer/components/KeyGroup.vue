@@ -10,6 +10,10 @@
           <span class="key-list__group__entries">{{keyGroup.keys.length}}</span>
         </div>
       </div>
+      <div class="key-list__key__toolbar">
+        <button @click.stop="addKeyToGroup"><i class="fas fa-plus-circle"></i></button>
+        <button @click.stop="removeGroup"><i class="far fa-trash-alt"></i></button>
+      </div>
     </div>
     <div class="key-list__keys" v-if="open">
       <key-group
@@ -18,6 +22,7 @@
         v-for="group in groupedKeys.groups"
         :selectedFullKey="selectedFullKey"
         @loadKey="loadKey"
+        @deleteKey="deleteKey"
         :key="group.key"
       ></key-group>
       <div
@@ -29,6 +34,7 @@
       >
         <i class="fas fa-key"></i>
         {{key.name}}
+        <button @click.stop="deleteKey(key.fullKey)">Del</button>
       </div>
 
       <!-- <virtual-list :size="40" :remain="10">
@@ -83,6 +89,15 @@ export default {
 
   },
   methods: {
+    addKeyToGroup() {
+      console.log(this.keyGroup);
+    },
+    removeGroup() {
+      console.log(this.keyGroup);
+    },
+    deleteKey(key) {
+      this.$emit('deleteKey', key);
+    },
     loadKey(key) {
       this.$emit('loadKey', key);
     },
@@ -198,5 +213,32 @@ export default {
   left: 0;
   right: 0;
   background: red;
+}
+.key-list__key {
+  position: relative;
+  overflow: hidden;
+}
+
+.key-list__key:hover .key-list__key__toolbar {
+    transform: translateX(0);
+  }
+
+.key-list__key__toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  transform: translateX(100%);
+  opacity: .5;
+  transition: all ease .3s;
+      background: #ccc;
+    padding: .5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.key-list__key__toolbar:hover {
+  opacity: 1;
 }
 </style>

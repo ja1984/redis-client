@@ -33,6 +33,7 @@
 <script>
 import KeyGroup from '@/components/KeyGroup';
 import DatabaseListItem from '@/components/DatabaseListItem';
+
 export default {
   name: 'SideBar',
   props: {
@@ -67,6 +68,8 @@ export default {
 
     // this.loadData(0);
   },
+  // DEL d:0 <-- Delete ONE key
+  // DEL d:2902 d:3768 d:3385 d:2835
   methods: {
     loadKey(payload) {
       console.log(payload);
@@ -76,7 +79,7 @@ export default {
           case 'hash':
             this.loadHash(payload);
             break;
-          case 'lists':
+          case 'list':
             this.loadLists(payload);
             break;
           case 'set':
@@ -85,8 +88,11 @@ export default {
           case 'zset':
             this.loadZSet(payload);
             break;
-          default:
+          case 'string':
             this.loadString(payload);
+            break;
+          default:
+            alert(`No implementation for ${type}`);
             break;
         }
       });

@@ -39,6 +39,17 @@
                   <i class="fas fa-fw toolbar__button__icon fa-ellipsis-v"></i>
                 </button>
               </div>
+              <div class="column column--wrap">
+                <button class="toolbar__button">
+                  <span class="fa-stack fa-2x">
+                    <i class="fas fa-fw toolbar__button__icon fa-database fa-stack-2x"></i>
+                    
+                    <i class="far fa-times-circle fa-stack-1x"></i>
+                  </span>
+                  
+                  
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -84,7 +95,7 @@ export default {
 
       const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`; //eslint-disable-line
+      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`; //eslint-disable-line
     },
   },
   computed: {
@@ -95,20 +106,27 @@ export default {
         case 'zset':
           return 'zset';
         case 'string':
-          try {
-            JSON.parse(this.keyObject.data);
+          if (this.isJson) {
             return 'json';
-          } catch (error) {
-            return 'string';
           }
+          return 'string';
         default:
           return 'string';
+      }
+    },
+    isJson() {
+      try {
+        const json = JSON.parse(this.keyObject.data); //eslint-disable-line
+        return true;
+      } catch (error) {
+        return false;
       }
     },
     dataValue() {
       try {
         return JSON.parse(this.keyObject.data);
       } catch (error) {
+        console.log(error);
         return this.keyObject.data;
       }
     },
