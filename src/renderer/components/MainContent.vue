@@ -112,13 +112,10 @@ export default {
     dataType() {
       switch (this.keyObject.type) {
         case 'set':
-          console.log('this is a set', this.keyObject.data);
           return 'set';
         case 'list':
-          console.log('this is a list', this.keyObject.data);
           return 'list';
         case 'hash':
-          console.log('this is a hash', this.keyObject.data);
           return 'hash';
         case 'zset':
           return 'zset';
