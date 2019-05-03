@@ -56,15 +56,18 @@
       </div>
     </header>
     <section class="content__body" v-if="keyObject">
-      <pre v-if="keyObject.type === 'string'" v-html="dataValue"></pre>
-      <z-set-viewer v-if="keyObject.type === 'zset'" :data="keyObject.data"></z-set-viewer>
-      <set-viewer v-if="keyObject.type === 'set'" :data="keyObject.data"></set-viewer>
+      <vue-json-pretty v-if="dataType === 'json'" :data="getJson"></vue-json-pretty>
+      <pre v-if="dataType === 'string'" v-html="keyObject.data"></pre>
+      <z-set-viewer v-if="dataType === 'zset'" :data="keyObject.data"></z-set-viewer>
+      <set-viewer v-if="dataType === 'set'" :data="keyObject.data"></set-viewer>
     </section>
     <footer class="content__footer" v-if="keyObject">{{ size }}</footer>
   </main>
 </template>
 
 <script>
+import VueJsonPretty from 'vue-json-pretty';
+
 import ZSetViewer from '@/components/ZSetViewer';
 import SetViewer from '@/components/SetViewer';
 export default {
@@ -72,6 +75,7 @@ export default {
   components: {
     ZSetViewer,
     SetViewer,
+    VueJsonPretty,
   },
   props: {
     keyObject: {
@@ -95,6 +99,21 @@ export default {
     },
   },
   computed: {
+    dataType() {
+      switch (this.keyObject.type) {
+        case 'set':
+          return 'set';
+        case 'zset':
+          return 'zset';
+        case 'string':
+          if (this.isJson) {
+            return 'json';
+          }
+          return 'string';
+        default:
+          return 'string';
+      }
+    },
     isJson() {
       try {
         const json = JSON.parse(this.keyObject.data); //eslint-disable-line
@@ -103,10 +122,9 @@ export default {
         return false;
       }
     },
-    dataValue() {
+    getJson() {
       try {
-        const json = JSON.parse(this.keyObject.data);
-        return JSON.stringify(json, null, 2);
+        return JSON.parse(this.keyObject.data);
       } catch (error) {
         console.log(error);
         return this.keyObject.data;
