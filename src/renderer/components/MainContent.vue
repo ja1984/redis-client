@@ -45,17 +45,18 @@
       </div>
     </header>
     <section class="content__body" v-if="keyObject">
-      <pre v-if="keyObject.type === 'string'" v-html="dataValue"></pre>
-      <z-set-viewer v-if="keyObject.type === 'zset'" :data="keyObject.data"></z-set-viewer>
-      <set-viewer v-if="keyObject.type === 'set'" :data="keyObject.data"></set-viewer>
+      <vue-json-pretty v-if="dataType === 'json'" :data="dataValue"></vue-json-pretty>
+      <pre v-if="dataType === 'string'" v-html="dataValue"></pre>
+      <z-set-viewer v-if="dataType === 'zset'" :data="keyObject.data"></z-set-viewer>
+      <set-viewer v-if="dataType === 'set'" :data="keyObject.data"></set-viewer>
     </section>
-    <footer class="content__footer" v-if="keyObject">
-      {{ size }}
-    </footer>
+    <footer class="content__footer" v-if="keyObject">{{ size }}</footer>
   </main>
 </template>
 
 <script>
+import VueJsonPretty from 'vue-json-pretty';
+
 import ZSetViewer from '@/components/ZSetViewer';
 import SetViewer from '@/components/SetViewer';
 export default {
@@ -63,6 +64,7 @@ export default {
   components: {
     ZSetViewer,
     SetViewer,
+    VueJsonPretty,
   },
   props: {
     keyObject: {
@@ -86,10 +88,26 @@ export default {
     },
   },
   computed: {
+    dataType() {
+      switch (this.keyObject.type) {
+        case 'set':
+          return 'zset';
+        case 'zset':
+          return 'zset';
+        case 'string':
+          try {
+            JSON.parse(this.keyObject.data);
+            return 'json';
+          } catch (error) {
+            return 'string';
+          }
+        default:
+          return 'string';
+      }
+    },
     dataValue() {
       try {
-        const json = JSON.parse(this.keyObject.data);
-        return JSON.stringify(json, null, 2);
+        return JSON.parse(this.keyObject.data);
       } catch (error) {
         return this.keyObject.data;
       }
@@ -123,12 +141,12 @@ export default {
 }
 
 #app.app--theme-dark .content__header {
-  background: rgba(255,255,255, .2);
-  border-color: rgba(255,255,255, .1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 #app.app--theme-dark .content__header__key {
-  background: rgba(255,255,255, .1);
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 
