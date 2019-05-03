@@ -102,7 +102,7 @@ export default {
     dataType() {
       switch (this.keyObject.type) {
         case 'set':
-          return 'zset';
+          return 'set';
         case 'zset':
           return 'zset';
         case 'string':
