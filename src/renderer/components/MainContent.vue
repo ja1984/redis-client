@@ -56,8 +56,8 @@
       </div>
     </header>
     <section class="content__body" v-if="keyObject">
-      <vue-json-pretty v-if="dataType === 'json'" :data="dataValue"></vue-json-pretty>
-      <pre v-if="dataType === 'string'" v-html="dataValue"></pre>
+      <vue-json-pretty v-if="dataType === 'json'" :data="getJson"></vue-json-pretty>
+      <pre v-if="dataType === 'string'" v-html="keyObject.data"></pre>
       <z-set-viewer v-if="dataType === 'zset'" :data="keyObject.data"></z-set-viewer>
       <set-viewer v-if="dataType === 'set'" :data="keyObject.data"></set-viewer>
     </section>
@@ -122,7 +122,7 @@ export default {
         return false;
       }
     },
-    dataValue() {
+    getJson() {
       try {
         return JSON.parse(this.keyObject.data);
       } catch (error) {
