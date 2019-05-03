@@ -60,6 +60,10 @@
       <pre v-if="dataType === 'string'" v-html="keyObject.data"></pre>
       <z-set-viewer v-if="dataType === 'zset'" :data="keyObject.data"></z-set-viewer>
       <set-viewer v-if="dataType === 'set'" :data="keyObject.data"></set-viewer>
+      <list-viewer v-if="dataType === 'list'" :data="keyObject.data"></list-viewer>
+      <hash-viewer v-if="dataType === 'hash'" :data="keyObject.data"></hash-viewer>
+
+
     </section>
     <footer class="content__footer" v-if="keyObject">{{ size }}</footer>
   </main>
@@ -70,11 +74,17 @@ import VueJsonPretty from 'vue-json-pretty';
 
 import ZSetViewer from '@/components/ZSetViewer';
 import SetViewer from '@/components/SetViewer';
+import ListViewer from '@/components/ListViewer';
+import HashViewer from '@/components/HashViewer';
+
+
 export default {
   name: 'MainContent',
   components: {
     ZSetViewer,
     SetViewer,
+    ListViewer,
+    HashViewer,
     VueJsonPretty,
   },
   props: {
@@ -102,7 +112,14 @@ export default {
     dataType() {
       switch (this.keyObject.type) {
         case 'set':
+          console.log('this is a set', this.keyObject.data);
           return 'set';
+        case 'list':
+          console.log('this is a list', this.keyObject.data);
+          return 'list';
+        case 'hash':
+          console.log('this is a hash', this.keyObject.data);
+          return 'hash';
         case 'zset':
           return 'zset';
         case 'string':

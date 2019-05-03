@@ -113,13 +113,29 @@ export default {
       }));
     },
     loadHash(payload) {
-      payload.redis.get(payload.key).then((response) => {
-        console.log('HASH', response);
+      // ttl newset
+      // hlen newset
+      // HSCAN newset 0 COUNT 10000
+      this.loadTtl(payload).then((ttl) => {
+        payload.redis.hscan(payload.key, 0, 'COUNT', 10000).then((hashResponse) => {
+          this.$emit('setKey', {
+            ttl, data: hashResponse, type: 'hash', key: payload.key,
+          });
+        });
       });
     },
     loadLists(payload) {
-      payload.redis.get(payload.key).then((response) => {
-        console.log('LIST', response);
+      // ttl newset
+      // LLEN newset
+      // LRANGE newset 0 0
+      this.loadTtl(payload).then((ttl) => {
+        payload.redis.llen(payload.key).then((lenResponse) => {
+          payload.redis.lrange(payload.key, 0, lenResponse).then((lrangeResponse) => {
+            this.$emit('setKey', {
+              ttl, data: lrangeResponse, type: 'list', key: payload.key,
+            });
+          });
+        });
       });
     },
     loadSets(payload) {
