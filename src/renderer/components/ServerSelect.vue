@@ -50,6 +50,11 @@
               >Connect</button>
             </div>
           </div>
+          <div class="row" v-if="err">
+            <div class="column server-editor__error">
+              {{err}}
+            </div>
+          </div>
         </footer>
         <server-editor
           :show="showServerEditor"
@@ -89,6 +94,7 @@ export default {
       selectedServer: null,
       loading: false,
       serverToEdit: null,
+      err: null,
     };
   },
   methods: {
@@ -107,6 +113,7 @@ export default {
       }
     },
     selectServer(server) {
+      this.err = null;
       if (server === this.selectedServer) {
         const redis = new Redis({
           lazyConnect: true,
@@ -114,8 +121,8 @@ export default {
           host: server.host,
           maxRetriesPerRequest: 1,
         });
-        redis.on('error', () => {
-          alert('Could not connect');
+        redis.on('error', (err) => {
+          this.err = err;
           redis.disconnect();
         });
         this.loading = true;
@@ -160,6 +167,10 @@ export default {
   align-items: center;
   transition: all ease 0.3s;
   opacity: 1;
+}
+
+.server-editor__error {
+  color: red;
 }
 
 .server-select__modal {
