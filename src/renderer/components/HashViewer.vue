@@ -4,15 +4,15 @@
       <thead>
         <tr>
           <th>Row</th>
+          <th>Key</th>
           <th>Value</th>
-          <th>Score</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="row in rows" :key="row.id">
           <td>{{row.id}}</td>
+          <td>{{row.key}}</td>
           <td>{{row.value}}</td>
-          <td>{{row.score}}</td>
         </tr>
       </tbody>
     </table>
@@ -21,24 +21,33 @@
 
 <script>
 export default {
-  name: 'ZSetViewer',
+  name: 'HashViewer',
   props: {
     data: {
       type: Array,
       default: () => [],
     },
   },
+  data() {
+    return {
+      page: 0,
+    };
+  },
   computed: {
     rows() {
       const rows = [];
-      let row = 1;
-      for (let i = 0; i < this.data.length; i += 2) {
-        rows.push({
-          id: row,
-          value: this.data[i],
-          score: this.data[i + 1],
-        });
-        row += 1;
+      const page = this.data[this.page + 1];
+
+      if (Array.isArray(page)) {
+        let row = 1;
+        for (let i = 0; i < page.length; i += 2) {
+          rows.push({
+            id: row,
+            key: page[i],
+            value: page[i + 1],
+          });
+          row += 1;
+        }
       }
       return rows;
     },

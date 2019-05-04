@@ -4,15 +4,13 @@
       <thead>
         <tr>
           <th>Row</th>
-          <th>Value</th>
-          <th>Score</th>
+          <th>Item</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.id">
-          <td>{{row.id}}</td>
-          <td>{{row.value}}</td>
-          <td>{{row.score}}</td>
+        <tr v-for="(row,index) in data" :key="index + '-' + row">
+          <td>{{index + 1}}</td>
+          <td>{{row}}</td>
         </tr>
       </tbody>
     </table>
@@ -21,26 +19,11 @@
 
 <script>
 export default {
-  name: 'ZSetViewer',
+  name: 'ListViewer',
   props: {
     data: {
       type: Array,
       default: () => [],
-    },
-  },
-  computed: {
-    rows() {
-      const rows = [];
-      let row = 1;
-      for (let i = 0; i < this.data.length; i += 2) {
-        rows.push({
-          id: row,
-          value: this.data[i],
-          score: this.data[i + 1],
-        });
-        row += 1;
-      }
-      return rows;
     },
   },
 };
