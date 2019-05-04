@@ -1,31 +1,63 @@
 <template>
-  <div>
-    <table class="table" cellspacing="0" cellpadding="0">
-      <thead>
-        <tr>
-          <th>Row</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in rows" :key="row.id">
-          <td>{{row.id}}</td>
-          <td>{{row.value}}</td>
-          <td>{{row.score}}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <section class="zset-view">
+    <div class="zset-view__data">
+      <table class="table" cellspacing="0" cellpadding="0">
+        <thead>
+          <tr>
+            <th>Row</th>
+            <th>Value</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="data-row"
+            :class="{'data-row--selected': row === selectedRow}"
+            v-for="row in rows"
+            :key="row.id"
+            @click="toggleSelectedRow(row)"
+          >
+            <td>{{row.id}}</td>
+            <td class="ellipsis">
+              <div class="ellipsis__content">{{row.value}}</div>
+            </td>
+            <td>{{row.score}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="zset-view__preview" v-if="selectedRow !== null">
+      <string-viewer :data="selectedRow.value"></string-viewer>
+    </div>
+  </section>
 </template>
 
 <script>
+import StringViewer from '@/components/StringViewer';
+
 export default {
   name: 'ZSetViewer',
   props: {
     data: {
       type: Array,
       default: () => [],
+    },
+  },
+  data() {
+    return {
+      selectedRow: null,
+    };
+  },
+  components: {
+    StringViewer,
+  },
+  methods: {
+    toggleSelectedRow(row) {
+      if (this.selectedRow === row) {
+        this.selectedRow = null;
+      } else {
+        this.selectedRow = row;
+      }
     },
   },
   computed: {
@@ -47,22 +79,39 @@ export default {
 </script>
 
 <style>
-
 .table {
   width: 100%;
 }
-td, th {
-  padding: .5rem;
+td,
+th {
+  padding: 0.5rem;
 }
 tbody td {
   text-align: center;
 }
 
- thead tr {
-   background: #ccc;
- }
+thead tr {
+  background: #ccc;
+}
 
- tbody tr:nth-child(even) {
-   background: red;
- }
+tbody tr:nth-child(even) {
+  background: red;
+}
+
+.zset-view {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.zset-view__preview,
+.zset-view__data {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.zset-view__preview {
+  position: relative;
+}
 </style>

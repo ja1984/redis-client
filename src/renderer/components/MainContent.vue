@@ -56,26 +56,23 @@
       </div>
     </header>
     <section class="content__body" v-if="keyObject">
-      <vue-json-pretty v-if="dataType === 'json'" :data="getJson"></vue-json-pretty>
-      <pre v-if="dataType === 'string'" v-html="keyObject.data"></pre>
+      <string-viewer v-if="dataType === 'string'" :data="keyObject.data"></string-viewer>
       <z-set-viewer v-if="dataType === 'zset'" :data="keyObject.data"></z-set-viewer>
       <set-viewer v-if="dataType === 'set'" :data="keyObject.data"></set-viewer>
       <list-viewer v-if="dataType === 'list'" :data="keyObject.data"></list-viewer>
       <hash-viewer v-if="dataType === 'hash'" :data="keyObject.data"></hash-viewer>
-
-
     </section>
     <footer class="content__footer" v-if="keyObject">{{ size }}</footer>
   </main>
 </template>
 
 <script>
-import VueJsonPretty from 'vue-json-pretty';
 
 import ZSetViewer from '@/components/ZSetViewer';
 import SetViewer from '@/components/SetViewer';
 import ListViewer from '@/components/ListViewer';
 import HashViewer from '@/components/HashViewer';
+import StringViewer from '@/components/StringViewer';
 
 
 export default {
@@ -85,7 +82,7 @@ export default {
     SetViewer,
     ListViewer,
     HashViewer,
-    VueJsonPretty,
+    StringViewer,
   },
   props: {
     keyObject: {
@@ -126,22 +123,6 @@ export default {
           return 'string';
         default:
           return 'string';
-      }
-    },
-    isJson() {
-      try {
-        const json = JSON.parse(this.keyObject.data); //eslint-disable-line
-        return true;
-      } catch (error) {
-        return false;
-      }
-    },
-    getJson() {
-      try {
-        return JSON.parse(this.keyObject.data);
-      } catch (error) {
-        console.log(error);
-        return this.keyObject.data;
       }
     },
     size() {
