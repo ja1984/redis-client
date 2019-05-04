@@ -130,6 +130,10 @@ pre {
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+table {
+  border-collapse: collapse;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background: red;
@@ -234,6 +238,51 @@ select {
 .modal-enter-to,
 .modal-leave {
   opacity: 1;
+}
+
+.table {
+  width: 100%;
+}
+td,
+th {
+  padding: 0.5rem;
+}
+tbody td, thead th {
+  text-align: left;
+}
+
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td, .table th {
+    padding: 1.2rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+.data-row {
+  cursor: pointer;
+  transition: all ease .3s;
+}
+.data-row:nth-child(odd) {
+  background: rgba(0,0,0,.05);
+}
+.data-row.data-row--selected {
+  background: rgba(0,0,0,.15);
+}
+
+#app.app--theme-dark .table thead th,
+#app.app--theme-dark .table tbody td{
+  border-color: #454d55;
+}
+
+#app.app--theme-dark .data-row:nth-child(odd) {
+  background: rgba(255,255,255,.05);
+}
+
+#app.app--theme-dark .data-row.data-row--selected {
+  background: rgba(255,255,255,.15);
 }
 
 

@@ -93,34 +93,13 @@ export default {
   position: relative;
 }
 
-.table {
-  width: 100%;
-}
-td,
-th {
-  padding: 0.5rem;
-}
-tbody td {
-  text-align: center;
-}
-
-.data-row {
-  cursor: pointer;
-}
-.data-row:nth-child(even) {
-  background: #ccc;
-}
-
-.data-row.data-row--selected {
-  background: blue;
-}
-
 .ellipsis__content {
-  max-width: 70vw;
+  max-width: 60vw;
 }
 .ellipsis__content {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 </style>

@@ -79,24 +79,6 @@ export default {
 </script>
 
 <style>
-.table {
-  width: 100%;
-}
-td,
-th {
-  padding: 0.5rem;
-}
-tbody td {
-  text-align: center;
-}
-
-thead tr {
-  background: #ccc;
-}
-
-tbody tr:nth-child(even) {
-  background: red;
-}
 
 .zset-view {
   height: 100%;

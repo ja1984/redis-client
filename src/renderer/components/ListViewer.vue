@@ -31,21 +31,4 @@ export default {
 
 <style>
 
-.table {
-  width: 100%;
-}
-td, th {
-  padding: .5rem;
-}
-tbody td {
-  text-align: center;
-}
-
- thead tr {
-   background: #ccc;
- }
-
- tbody tr:nth-child(even) {
-   background: red;
- }
 </style>
