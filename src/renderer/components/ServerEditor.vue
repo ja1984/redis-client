@@ -70,12 +70,19 @@
             <div class="column">
               <button class="button" :disabled="!canSave" @click="testConnection">
                 <i class="fas fa-plug"></i> Test connection
+                <i class="fas fa-circle-notch fa-spin" v-if="testing"></i>
               </button>
             </div>
             <div class="column column--wrap">
               <button class="button button--transparent" @click="$emit('cancel')">Cancel</button>
               <button class="button button--primary" :disabled="!canSave" @click="save">Ok</button>
             </div>
+          </div>
+          <div class="row"  v-if="err">
+            <div class="column server-editor__modal__error">
+              {{err}}
+            </div>
+            
           </div>
         </footer>
       </div>
@@ -115,6 +122,8 @@ export default {
       port: 6379,
       auth: '',
       nameEdited: false,
+      testing: false,
+      err: null,
     };
   },
   methods: {
@@ -147,14 +156,17 @@ export default {
       this.$emit('serverAdded');
     },
     testConnection() {
+      this.err = null;
+      this.testing = true;
       const redis = new Redis({
         lazyConnect: true,
         port: this.port,
         host: this.host,
         maxRetriesPerRequest: 1,
       });
-      redis.on('error', () => {
-        alert('Could not connect');
+      redis.on('error', (err) => {
+        this.testing = false;
+        this.err = err;
         redis.disconnect();
       });
 
@@ -168,8 +180,10 @@ export default {
           detail: 'It does not really matter',
         };
         dialog.showMessageBox(null, options);
+        this.testing = false;
       }).catch((err) => {
         console.log(err);
+        this.testing = false;
         redis.disconnect();
       });
     },
@@ -228,6 +242,10 @@ export default {
   flex-direction: column;
   width: 90%;
   max-width: 65rem;
+}
+
+.server-editor__modal__error {
+  color: red;
 }
 
 .server-editor__modal__header__title {
